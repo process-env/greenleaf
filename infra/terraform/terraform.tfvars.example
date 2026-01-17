@@ -1,0 +1,49 @@
+# AWS Configuration
+aws_region  = "us-east-1"
+environment = "prod"
+app_name    = "greenleaf"
+
+# VPC Configuration
+vpc_cidr = "10.0.0.0/16"
+
+# ECS Configuration
+ecs_task_cpu      = 512
+ecs_task_memory   = 1024
+ecs_desired_count = 2
+container_port    = 3000
+
+# RDS Configuration
+db_instance_class    = "db.t3.micro"
+db_allocated_storage = 20
+db_name              = "greenleaf"
+db_username          = "greenleaf_admin"
+db_password          = "YOUR_SECURE_DB_PASSWORD"
+
+# Application Configuration
+app_url = "https://greenleaf.example.com"
+
+# Clerk
+clerk_secret_key      = "sk_test_YOUR_KEY_HERE"
+clerk_publishable_key = "pk_test_YOUR_KEY_HERE"
+
+# Stripe
+stripe_secret_key      = "sk_test_YOUR_KEY_HERE"
+stripe_publishable_key = "pk_test_YOUR_KEY_HERE"
+stripe_webhook_secret  = "whsec_YOUR_KEY_HERE"
+
+# OpenAI
+openai_api_key = "sk-YOUR_KEY_HERE"
+
+# Resend (optional)
+resend_api_key = "re_YOUR_KEY_HERE"
+
+# Sentry (optional)
+sentry_dsn = "https://YOUR_KEY_HERE@sentry.io/YOUR_PROJECT_ID"
+
+# Upstash Redis (optional)
+upstash_redis_url   = "https://YOUR_REDIS_URL.upstash.io"
+upstash_redis_token = "YOUR_TOKEN_HERE"
+
+# Domain Configuration (optional)
+domain_name     = ""
+certificate_arn = ""
