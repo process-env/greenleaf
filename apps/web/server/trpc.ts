@@ -2,7 +2,7 @@ import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { prisma } from "@greenleaf/db";
 import { cookies } from "next/headers";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 
 export const createTRPCContext = async () => {
   const cookieStore = await cookies();
@@ -38,4 +38,19 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
       userId: ctx.userId,
     },
   });
+});
+
+// Admin procedure - requires admin role
+export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  const client = await clerkClient();
+  const user = await client.users.getUser(ctx.userId);
+
+  if (user.publicMetadata?.role !== "admin") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You must be an admin to perform this action",
+    });
+  }
+
+  return next({ ctx });
 });
