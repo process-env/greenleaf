@@ -4,24 +4,51 @@ import { TRPCError } from "@trpc/server";
 
 export const cartRouter = router({
   get: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.sessionId) {
-      return { items: [], total: 0 };
-    }
+    // Try to find cart by userId first, then sessionId
+    let cart = null;
 
-    const cart = await ctx.prisma.cart.findUnique({
-      where: { sessionId: ctx.sessionId },
-      include: {
-        items: {
-          include: {
-            strain: {
-              include: {
-                inventory: true,
+    if (ctx.userId) {
+      cart = await ctx.prisma.cart.findFirst({
+        where: { userId: ctx.userId },
+        include: {
+          items: {
+            include: {
+              strain: {
+                include: {
+                  inventory: true,
+                },
               },
             },
           },
         },
-      },
-    });
+      });
+    }
+
+    // Fall back to session cart if no user cart found
+    if (!cart && ctx.sessionId) {
+      cart = await ctx.prisma.cart.findUnique({
+        where: { sessionId: ctx.sessionId },
+        include: {
+          items: {
+            include: {
+              strain: {
+                include: {
+                  inventory: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      // Link anonymous cart to user if they're logged in
+      if (cart && ctx.userId && !cart.userId) {
+        await ctx.prisma.cart.update({
+          where: { id: cart.id },
+          data: { userId: ctx.userId },
+        });
+      }
+    }
 
     if (!cart) {
       return { items: [], total: 0 };
@@ -77,14 +104,33 @@ export const cartRouter = router({
         });
       }
 
-      // Get or create cart
-      let cart = await ctx.prisma.cart.findUnique({
-        where: { sessionId: input.sessionId },
-      });
+      // Get or create cart (check user cart first if logged in)
+      let cart = null;
+
+      if (ctx.userId) {
+        cart = await ctx.prisma.cart.findFirst({
+          where: { userId: ctx.userId },
+        });
+      }
+
+      if (!cart) {
+        cart = await ctx.prisma.cart.findUnique({
+          where: { sessionId: input.sessionId },
+        });
+      }
 
       if (!cart) {
         cart = await ctx.prisma.cart.create({
-          data: { sessionId: input.sessionId },
+          data: {
+            sessionId: input.sessionId,
+            userId: ctx.userId,
+          },
+        });
+      } else if (ctx.userId && !cart.userId) {
+        // Link anonymous cart to user
+        cart = await ctx.prisma.cart.update({
+          where: { id: cart.id },
+          data: { userId: ctx.userId },
         });
       }
 
@@ -171,9 +217,20 @@ export const cartRouter = router({
   clear: publicProcedure
     .input(z.object({ sessionId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const cart = await ctx.prisma.cart.findUnique({
-        where: { sessionId: input.sessionId },
-      });
+      // Try to find cart by userId first, then sessionId
+      let cart = null;
+
+      if (ctx.userId) {
+        cart = await ctx.prisma.cart.findFirst({
+          where: { userId: ctx.userId },
+        });
+      }
+
+      if (!cart) {
+        cart = await ctx.prisma.cart.findUnique({
+          where: { sessionId: input.sessionId },
+        });
+      }
 
       if (cart) {
         await ctx.prisma.cartItem.deleteMany({
@@ -185,18 +242,30 @@ export const cartRouter = router({
     }),
 
   itemCount: publicProcedure.query(async ({ ctx }) => {
-    if (!ctx.sessionId) {
-      return 0;
+    // Try to find cart by userId first, then sessionId
+    let cart = null;
+
+    if (ctx.userId) {
+      cart = await ctx.prisma.cart.findFirst({
+        where: { userId: ctx.userId },
+        include: {
+          _count: {
+            select: { items: true },
+          },
+        },
+      });
     }
 
-    const cart = await ctx.prisma.cart.findUnique({
-      where: { sessionId: ctx.sessionId },
-      include: {
-        _count: {
-          select: { items: true },
+    if (!cart && ctx.sessionId) {
+      cart = await ctx.prisma.cart.findUnique({
+        where: { sessionId: ctx.sessionId },
+        include: {
+          _count: {
+            select: { items: true },
+          },
         },
-      },
-    });
+      });
+    }
 
     return cart?._count.items ?? 0;
   }),

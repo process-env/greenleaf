@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { ClerkProvider } from "@clerk/nextjs";
+import { dark } from "@clerk/themes";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "@/styles/globals.css";
@@ -18,13 +20,29 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className="min-h-screen bg-background font-sans antialiased">
-        <TRPCProvider>
-          {children}
-          <Toaster />
-        </TRPCProvider>
-      </body>
-    </html>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+        variables: {
+          colorPrimary: "#C4A052",
+          colorBackground: "#0A0A0A",
+          colorInputBackground: "#141414",
+          colorInputText: "#FAFAFA",
+        },
+        elements: {
+          formButtonPrimary: "bg-primary hover:bg-primary/90",
+          card: "bg-card border-border/50",
+        },
+      }}
+    >
+      <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+        <body className="min-h-screen bg-background font-sans antialiased">
+          <TRPCProvider>
+            {children}
+            <Toaster />
+          </TRPCProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

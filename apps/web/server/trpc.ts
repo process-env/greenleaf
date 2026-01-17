@@ -1,15 +1,18 @@
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { prisma } from "@greenleaf/db";
 import { cookies } from "next/headers";
+import { auth } from "@clerk/nextjs/server";
 
 export const createTRPCContext = async () => {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("cart_session")?.value;
+  const { userId } = await auth();
 
   return {
     prisma,
     sessionId,
+    userId,
   };
 };
 
@@ -20,3 +23,19 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 export const router = t.router;
 export const publicProcedure = t.procedure;
 export const createCallerFactory = t.createCallerFactory;
+
+// Protected procedure - requires authentication
+export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+  if (!ctx.userId) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "You must be logged in to perform this action",
+    });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      userId: ctx.userId,
+    },
+  });
+});

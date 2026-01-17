@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { ShoppingCart, Leaf, MessageCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { trpc } from "@/lib/trpc/client";
 
 export function Header() {
@@ -66,6 +66,24 @@ export function Header() {
               )}
             </Button>
           </Link>
+
+          {/* Auth */}
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button variant="outline" size="sm">
+                Sign In
+              </Button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton
+              appearance={{
+                elements: {
+                  avatarBox: "h-8 w-8",
+                },
+              }}
+            />
+          </SignedIn>
         </div>
       </div>
     </motion.header>

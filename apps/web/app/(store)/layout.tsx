@@ -1,4 +1,5 @@
 import { Header } from "@/components/header";
+import { AgeVerificationModal } from "@/components/age-verification-modal";
 
 export default function StoreLayout({
   children,
@@ -9,6 +10,7 @@ export default function StoreLayout({
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">{children}</main>
+      <AgeVerificationModal />
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-16 md:flex-row">
           <p className="text-sm text-muted-foreground">
