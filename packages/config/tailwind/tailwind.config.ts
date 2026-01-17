@@ -11,19 +11,32 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // GreenLeaf brand colors
-        greenleaf: {
-          50: "#f0fdf4",
-          100: "#dcfce7",
-          200: "#bbf7d0",
-          300: "#86efac",
-          400: "#4ade80",
-          500: "#22c55e",
-          600: "#16a34a",
-          700: "#15803d",
-          800: "#166534",
-          900: "#14532d",
-          950: "#052e16",
+        // Premium luxury palette
+        gold: {
+          DEFAULT: "hsl(43 50% 54%)",
+          50: "#fdfaf3",
+          100: "#faf3e0",
+          200: "#f4e4bc",
+          300: "#ecd08e",
+          400: "#e2b85e",
+          500: "#c4a052", // Primary gold
+          600: "#a8843d",
+          700: "#8c6932",
+          800: "#74552d",
+          900: "#614729",
+        },
+        sage: {
+          DEFAULT: "hsl(80 20% 45%)",
+          50: "#f6f7f4",
+          100: "#e9ebe4",
+          200: "#d4d8ca",
+          300: "#b5bca6",
+          400: "#969f82",
+          500: "#8b9a6b", // Primary sage
+          600: "#6b7a51",
+          700: "#546141",
+          800: "#454f37",
+          900: "#3a4330",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
