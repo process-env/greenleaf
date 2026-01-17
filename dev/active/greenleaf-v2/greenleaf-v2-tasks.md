@@ -254,7 +254,7 @@
 - Stripe keys configured in `.env.local`
 - Resend API key configured
 - Clerk keys configured
-- Database schema up to date
+- Database schema up-to-date
 - New env vars needed for Sentry/Upstash (optional)
 
 ### Test Commands

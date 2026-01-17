@@ -61,13 +61,24 @@ export async function checkRateLimit(
     };
   }
 
-  const result = await limiter.limit(identifier);
-  return {
-    success: result.success,
-    limit: result.limit,
-    remaining: result.remaining,
-    reset: result.reset,
-  };
+  try {
+    const result = await limiter.limit(identifier);
+    return {
+      success: result.success,
+      limit: result.limit,
+      remaining: result.remaining,
+      reset: result.reset,
+    };
+  } catch (error) {
+    // Fail open: allow request if rate limiting fails
+    console.error("Rate limit check failed:", error);
+    return {
+      success: true,
+      limit: 0,
+      remaining: 0,
+      reset: 0,
+    };
+  }
 }
 
 export function getRateLimitHeaders(result: RateLimitResult): HeadersInit {

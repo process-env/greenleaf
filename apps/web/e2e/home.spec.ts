@@ -14,12 +14,13 @@ test.describe("Homepage", () => {
 });
 
 test.describe("Catalog", () => {
-  test("should display strain cards", async ({ page }) => {
+  test("should display strain cards or empty state", async ({ page }) => {
     await page.goto("/catalog");
-    // Wait for strains to load
-    await page.waitForSelector("[data-testid='strain-card']", { timeout: 10000 }).catch(() => {
-      // If no strain cards, check for empty state
-    });
+    // Wait for either strain cards or empty state
+    const strainCard = page.locator("[data-testid='strain-card']").first();
+    const emptyState = page.getByText(/no strains|empty|no results/i);
+
+    await expect(strainCard.or(emptyState)).toBeVisible({ timeout: 10000 });
   });
 });
 

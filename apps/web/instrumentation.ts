@@ -20,6 +20,8 @@ export const onRequestError = async (
       routerKind: context.routerKind,
       routePath: context.routePath,
       routeType: context.routeType,
+      url: request.url,
+      method: request.method,
     },
   });
 };
