@@ -81,14 +81,15 @@ model Order {
 }
 
 model OrderItem {
-  id         String  @id @default(cuid())
-  orderId    String
-  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  strainId   String?
-  strain     Strain? @relation(fields: [strainId], references: [id], onDelete: SetNull)
-  strainName String
-  grams      Float
-  priceCents Int
+  id           String  @id @default(cuid())
+  orderId      String
+  order        Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  strainId     String?
+  strain       Strain? @relation(fields: [strainId], references: [id], onDelete: SetNull)
+  strainName   String
+  grams        Float
+  pricePerGram Float
+  priceCents   Int
 }
 
 enum StrainType {

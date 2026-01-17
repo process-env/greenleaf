@@ -1,29 +1,49 @@
 import { z } from "zod";
 import { router, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import Stripe from "stripe";
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2024-12-18.acacia",
-});
+import { stripe, getBaseUrl } from "@/lib/stripe";
 
 export const checkoutRouter = router({
   create: publicProcedure
     .input(z.object({ sessionId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // Get cart with items
-      const cart = await ctx.prisma.cart.findUnique({
-        where: { sessionId: input.sessionId },
-        include: {
-          items: {
-            include: {
-              strain: {
-                include: { inventory: true },
+      // Get cart - check user cart first, then session cart
+      let cart = null;
+
+      if (ctx.userId) {
+        cart = await ctx.prisma.cart.findUnique({
+          where: { userId: ctx.userId },
+          include: {
+            items: {
+              include: {
+                strain: {
+                  include: { inventory: true },
+                },
               },
             },
           },
-        },
-      });
+        });
+      }
+
+      // Fall back to session cart (only if anonymous)
+      if (!cart) {
+        const sessionCart = await ctx.prisma.cart.findUnique({
+          where: { sessionId: input.sessionId },
+          include: {
+            items: {
+              include: {
+                strain: {
+                  include: { inventory: true },
+                },
+              },
+            },
+          },
+        });
+
+        if (sessionCart && !sessionCart.userId) {
+          cart = sessionCart;
+        }
+      }
 
       if (!cart || cart.items.length === 0) {
         throw new TRPCError({
@@ -32,40 +52,75 @@ export const checkoutRouter = router({
         });
       }
 
-      // Build line items for Stripe
-      const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] =
-        cart.items.map((item) => {
-          const pricePerGram = item.strain.inventory[0]?.pricePerGram ?? 0;
-          const unitAmount = Math.round(pricePerGram * 100);
+      // Validate inventory and calculate totals
+      const orderItems: {
+        strainId: string;
+        strainName: string;
+        grams: number;
+        pricePerGram: number;
+        priceCents: number;
+      }[] = [];
 
-          return {
-            price_data: {
-              currency: "usd",
-              product_data: {
-                name: item.strain.name,
-                description: `${item.strain.type} - ${item.grams}g`,
-                images: item.strain.imageUrl ? [item.strain.imageUrl] : [],
-              },
-              unit_amount: unitAmount,
-            },
-            quantity: item.grams,
-          };
+      for (const item of cart.items) {
+        const inventory = item.strain.inventory[0];
+        if (!inventory) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `${item.strain.name} is not available`,
+          });
+        }
+
+        if (inventory.quantity < item.grams) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Insufficient inventory for ${item.strain.name}. Only ${inventory.quantity}g available.`,
+          });
+        }
+
+        const pricePerGram = inventory.pricePerGram;
+        const priceCents = Math.round(item.grams * pricePerGram * 100);
+
+        orderItems.push({
+          strainId: item.strainId,
+          strainName: item.strain.name,
+          grams: item.grams,
+          pricePerGram,
+          priceCents,
         });
+      }
 
-      // Calculate total
-      const totalCents = cart.items.reduce((sum, item) => {
+      const totalCents = orderItems.reduce((sum, item) => sum + item.priceCents, 0);
+
+      // Build Stripe line items
+      const lineItems = cart.items.map((item) => {
         const pricePerGram = item.strain.inventory[0]?.pricePerGram ?? 0;
-        return sum + Math.round(item.grams * pricePerGram * 100);
-      }, 0);
+        const unitAmount = Math.round(pricePerGram * 100);
+
+        return {
+          price_data: {
+            currency: "usd" as const,
+            product_data: {
+              name: item.strain.name,
+              description: `${item.strain.type} - ${item.grams}g`,
+              images: item.strain.imageUrl ? [item.strain.imageUrl] : [],
+            },
+            unit_amount: unitAmount,
+          },
+          quantity: item.grams,
+        };
+      });
+
+      const baseUrl = getBaseUrl();
 
       // Create Stripe checkout session
       const stripeSession = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         line_items: lineItems,
         mode: "payment",
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cart`,
+        success_url: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${baseUrl}/cart?cancelled=true`,
         metadata: {
+          cartId: cart.id,
           cartSessionId: input.sessionId,
         },
       });
@@ -77,15 +132,7 @@ export const checkoutRouter = router({
           status: "PENDING",
           totalCents,
           items: {
-            create: cart.items.map((item) => {
-              const pricePerGram = item.strain.inventory[0]?.pricePerGram ?? 0;
-              return {
-                strainId: item.strainId,
-                strainName: item.strain.name,
-                grams: item.grams,
-                priceCents: Math.round(item.grams * pricePerGram * 100),
-              };
-            }),
+            create: orderItems,
           },
         },
       });
@@ -100,7 +147,15 @@ export const checkoutRouter = router({
         where: { stripeSessionId: input.sessionId },
         include: {
           items: {
-            include: { strain: true },
+            include: {
+              strain: {
+                select: {
+                  name: true,
+                  imageUrl: true,
+                  slug: true,
+                },
+              },
+            },
           },
         },
       });
@@ -116,6 +171,7 @@ export const checkoutRouter = router({
         id: order.id,
         status: order.status,
         totalCents: order.totalCents,
+        email: order.email,
         items: order.items,
         createdAt: order.createdAt,
       };
