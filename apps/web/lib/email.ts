@@ -1,8 +1,15 @@
+import "server-only";
 import { Resend } from "resend";
 import { OrderConfirmationEmail } from "@/components/emails/order-confirmation";
 import { OrderShippedEmail } from "@/components/emails/order-shipped";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+if (!process.env.RESEND_API_KEY) {
+  console.warn("RESEND_API_KEY is not set. Email sending will be disabled.");
+}
+
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 const FROM_EMAIL = "GreenLeaf <orders@greenleaf.com>";
 
@@ -25,6 +32,11 @@ type OrderWithItems = {
 };
 
 export async function sendOrderConfirmation(order: OrderWithItems) {
+  if (!resend) {
+    console.warn("Email sending is disabled (RESEND_API_KEY not set)");
+    return null;
+  }
+
   if (!order.email) {
     console.warn(`Cannot send order confirmation: no email for order ${order.id}`);
     return null;
@@ -51,6 +63,11 @@ export async function sendOrderConfirmation(order: OrderWithItems) {
 }
 
 export async function sendOrderShipped(order: OrderWithItems) {
+  if (!resend) {
+    console.warn("Email sending is disabled (RESEND_API_KEY not set)");
+    return null;
+  }
+
   if (!order.email) {
     console.warn(`Cannot send shipping notification: no email for order ${order.id}`);
     return null;

@@ -441,6 +441,11 @@ export const adminRouter = router({
 
         const topItems = await ctx.prisma.orderItem.groupBy({
           by: ["strainId"],
+          where: {
+            order: {
+              status: { in: ["PAID", "FULFILLED"] },
+            },
+          },
           _sum: { grams: true, priceCents: true },
           _count: true,
           orderBy: { _sum: { priceCents: "desc" } },

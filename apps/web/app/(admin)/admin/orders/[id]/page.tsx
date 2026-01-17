@@ -121,12 +121,12 @@ export default function OrderDetailPage() {
         <p className="text-muted-foreground mb-4">
           The order you&apos;re looking for doesn&apos;t exist.
         </p>
-        <Link href="/admin/orders">
-          <Button variant="outline">
+        <Button variant="outline" asChild>
+          <Link href="/admin/orders">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Orders
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </div>
     );
   }
@@ -143,11 +143,11 @@ export default function OrderDetailPage() {
         transition={{ duration: 0.3 }}
         className="flex items-center gap-4"
       >
-        <Link href="/admin/orders">
-          <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" asChild>
+          <Link href="/admin/orders">
             <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <div>
           <h1 className="text-2xl font-bold tracking-tight font-mono">
             Order #{order.id.slice(0, 8)}
@@ -285,7 +285,7 @@ export default function OrderDetailPage() {
                       </p>
                     )}
                     <p className="text-sm text-muted-foreground">
-                      {item.grams}g @ {formatCurrency(item.pricePerGram)}/g
+                      {item.grams}g @ {formatCurrency(item.pricePerGram * 100)}/g
                     </p>
                   </div>
                   <div className="text-right">

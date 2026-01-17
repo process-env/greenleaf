@@ -27,7 +27,7 @@
 
 ### 4.2 Dashboard Analytics
 - [ ] Add revenue stats (today, week, month)
-- [ ] Create top selling strains widget
+- [ ] Create top-selling strains widget
 - [ ] Add recent orders table
 - [ ] Show order status breakdown
 - [ ] Add inventory value calculation
@@ -54,7 +54,7 @@
 ## Technical Notes
 
 ### Order Status Flow
-```
+```text
 PENDING → PAID → FULFILLED → (complete)
                 ↘ CANCELLED
 ```
@@ -85,7 +85,7 @@ export async function sendOrderConfirmation(order: Order) {
 ```
 
 ### Email Templates Structure
-```
+```text
 components/emails/
   base-layout.tsx      # Shared header/footer
   order-confirmation.tsx
