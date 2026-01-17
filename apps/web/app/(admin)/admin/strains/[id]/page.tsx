@@ -14,7 +14,8 @@ export default function EditStrainPage() {
 
   const { data: strain, isLoading, error } = trpc.admin.strains.get.useQuery({ id });
 
-  if (error) {
+  // Handle error or not-found state
+  if (error || (!isLoading && !strain)) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
         <p className="text-lg">Strain not found</p>

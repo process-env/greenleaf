@@ -28,21 +28,26 @@ export const cartRouter = router({
 
     // Fall back to session cart if no user cart found
     if (!cart && ctx.sessionId) {
-      cart = await ctx.prisma.cart.findUnique({
+      const sessionCart = await ctx.prisma.cart.findUnique({
         where: { sessionId: ctx.sessionId },
         include: cartInclude,
       });
 
-      // Link anonymous cart to user if they're logged in (within transaction)
-      if (cart && ctx.userId && !cart.userId) {
-        try {
-          await ctx.prisma.cart.update({
-            where: { id: cart.id },
-            data: { userId: ctx.userId },
-          });
-        } catch {
-          // If linking fails (e.g., user already has a cart), ignore
-          // The user's existing cart will be used on next request
+      // Only use session cart if it's anonymous (prevent cross-user exposure)
+      if (sessionCart && !sessionCart.userId) {
+        cart = sessionCart;
+
+        // Link anonymous cart to user if they're logged in
+        if (ctx.userId) {
+          try {
+            await ctx.prisma.cart.update({
+              where: { id: cart.id },
+              data: { userId: ctx.userId },
+            });
+          } catch {
+            // If linking fails (e.g., user already has a cart), ignore
+            // The user's existing cart will be used on next request
+          }
         }
       }
     }
@@ -94,10 +99,10 @@ export const cartRouter = router({
       }
 
       const inventory = strain.inventory[0];
-      if (!inventory || inventory.quantity < input.grams) {
+      if (!inventory) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Insufficient inventory",
+          message: "Strain not available",
         });
       }
 
@@ -113,15 +118,20 @@ export const cartRouter = router({
           });
         }
 
-        // Fall back to session cart
+        // Fall back to session cart (only if anonymous)
         if (!cart) {
-          cart = await tx.cart.findUnique({
+          const sessionCart = await tx.cart.findUnique({
             where: { sessionId: input.sessionId },
           });
+
+          // Only use if anonymous (prevent cross-user exposure)
+          if (sessionCart && !sessionCart.userId) {
+            cart = sessionCart;
+          }
         }
 
         if (!cart) {
-          // Create new cart with upsert to handle race conditions
+          // Create new cart
           cart = await tx.cart.upsert({
             where: { sessionId: input.sessionId },
             update: ctx.userId ? { userId: ctx.userId } : {},
@@ -138,7 +148,28 @@ export const cartRouter = router({
           });
         }
 
-        // Upsert cart item to handle concurrent adds
+        // Check existing cart item to validate total quantity
+        const existingItem = await tx.cartItem.findUnique({
+          where: {
+            cartId_strainId: {
+              cartId: cart.id,
+              strainId: input.strainId,
+            },
+          },
+        });
+
+        const existingGrams = existingItem?.grams ?? 0;
+        const totalGrams = existingGrams + input.grams;
+
+        // Validate total quantity doesn't exceed inventory
+        if (totalGrams > inventory.quantity) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `Insufficient inventory. Only ${inventory.quantity}g available${existingGrams > 0 ? ` (${existingGrams}g already in cart)` : ""}.`,
+          });
+        }
+
+        // Upsert cart item
         await tx.cartItem.upsert({
           where: {
             cartId_strainId: {
@@ -147,7 +178,7 @@ export const cartRouter = router({
             },
           },
           update: {
-            grams: { increment: input.grams },
+            grams: totalGrams,
           },
           create: {
             cartId: cart.id,
@@ -213,19 +244,25 @@ export const cartRouter = router({
   clear: publicProcedure
     .input(z.object({ sessionId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // Try to find cart by userId first, then sessionId
+      // Try to find cart by userId first
       let cart = null;
 
       if (ctx.userId) {
-        cart = await ctx.prisma.cart.findFirst({
+        cart = await ctx.prisma.cart.findUnique({
           where: { userId: ctx.userId },
         });
       }
 
+      // Fall back to session cart (only if anonymous)
       if (!cart) {
-        cart = await ctx.prisma.cart.findUnique({
+        const sessionCart = await ctx.prisma.cart.findUnique({
           where: { sessionId: input.sessionId },
         });
+
+        // Only clear if anonymous (prevent cross-user exposure)
+        if (sessionCart && !sessionCart.userId) {
+          cart = sessionCart;
+        }
       }
 
       if (cart) {
@@ -238,11 +275,11 @@ export const cartRouter = router({
     }),
 
   itemCount: publicProcedure.query(async ({ ctx }) => {
-    // Try to find cart by userId first, then sessionId
+    // Try to find cart by userId first
     let cart = null;
 
     if (ctx.userId) {
-      cart = await ctx.prisma.cart.findFirst({
+      cart = await ctx.prisma.cart.findUnique({
         where: { userId: ctx.userId },
         include: {
           _count: {
@@ -252,8 +289,9 @@ export const cartRouter = router({
       });
     }
 
+    // Fall back to session cart (only if anonymous)
     if (!cart && ctx.sessionId) {
-      cart = await ctx.prisma.cart.findUnique({
+      const sessionCart = await ctx.prisma.cart.findUnique({
         where: { sessionId: ctx.sessionId },
         include: {
           _count: {
@@ -261,6 +299,11 @@ export const cartRouter = router({
           },
         },
       });
+
+      // Only use if anonymous (prevent cross-user exposure)
+      if (sessionCart && !sessionCart.userId) {
+        cart = sessionCart;
+      }
     }
 
     return cart?._count.items ?? 0;

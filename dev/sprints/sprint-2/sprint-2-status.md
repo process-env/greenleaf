@@ -54,8 +54,8 @@
 ### New Files
 - `apps/web/.env.local` - Clerk environment variables
 - `apps/web/middleware.ts` - Route protection middleware
-- `apps/web/app/(auth)/sign-in/[[...sign-in]]/page.tsx` - Sign in page
-- `apps/web/app/(auth)/sign-up/[[...sign-up]]/page.tsx` - Sign up page
+- `apps/web/app/(auth)/sign-in/[[...sign-in]]/page.tsx` - Sign-in page
+- `apps/web/app/(auth)/sign-up/[[...sign-up]]/page.tsx` - Sign-up page
 - `apps/web/components/age-verification-modal.tsx` - Age gate modal
 - `apps/web/components/ui/checkbox.tsx` - Checkbox component
 - `dev/sprints/sprint-2/sprint-2-plan.md` - Sprint plan

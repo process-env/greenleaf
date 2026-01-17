@@ -81,11 +81,11 @@ model Order {
 }
 
 model OrderItem {
-  id         String @id @default(cuid())
+  id         String  @id @default(cuid())
   orderId    String
-  order      Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  strainId   String
-  strain     Strain @relation(fields: [strainId], references: [id])
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  strainId   String?
+  strain     Strain? @relation(fields: [strainId], references: [id], onDelete: SetNull)
   strainName String
   grams      Float
   priceCents Int
