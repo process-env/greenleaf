@@ -115,17 +115,31 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       },
     });
 
-    // Deduct inventory for each item
+    // Deduct inventory for each item (with negative quantity protection)
     for (const item of order.items) {
       if (item.strainId) {
-        await tx.inventory.updateMany({
-          where: { strainId: item.strainId },
+        const gramsToDeduct = Math.ceil(item.grams);
+
+        // Only decrement if sufficient quantity exists
+        const result = await tx.inventory.updateMany({
+          where: {
+            strainId: item.strainId,
+            quantity: { gte: gramsToDeduct },
+          },
           data: {
             quantity: {
-              decrement: Math.ceil(item.grams),
+              decrement: gramsToDeduct,
             },
           },
         });
+
+        // Log warning if inventory couldn't be deducted (already depleted)
+        if (result.count === 0) {
+          console.warn(
+            `Insufficient inventory for strain ${item.strainId}, order ${order.id}. ` +
+            `Requested: ${gramsToDeduct}g. Order will still be marked as paid.`
+          );
+        }
       }
     }
 

@@ -91,22 +91,21 @@ export const checkoutRouter = router({
 
       const totalCents = orderItems.reduce((sum, item) => sum + item.priceCents, 0);
 
-      // Build Stripe line items
-      const lineItems = cart.items.map((item) => {
-        const pricePerGram = item.strain.inventory[0]?.pricePerGram ?? 0;
-        const unitAmount = Math.round(pricePerGram * 100);
+      // Build Stripe line items (quantity must be integer, so fold grams into unit_amount)
+      const lineItems = orderItems.map((item) => {
+        const cartItem = cart.items.find((ci) => ci.strainId === item.strainId);
 
         return {
           price_data: {
             currency: "usd" as const,
             product_data: {
-              name: item.strain.name,
-              description: `${item.strain.type} - ${item.grams}g`,
-              images: item.strain.imageUrl ? [item.strain.imageUrl] : [],
+              name: item.strainName,
+              description: `${item.grams}g @ $${item.pricePerGram.toFixed(2)}/g`,
+              images: cartItem?.strain.imageUrl ? [cartItem.strain.imageUrl] : [],
             },
-            unit_amount: unitAmount,
+            unit_amount: item.priceCents, // Total price for this line item
           },
-          quantity: item.grams,
+          quantity: 1, // Stripe requires integer quantity
         };
       });
 
