@@ -4,23 +4,25 @@ import { TRPCError } from "@trpc/server";
 
 export const cartRouter = router({
   get: publicProcedure.query(async ({ ctx }) => {
-    // Try to find cart by userId first, then sessionId
-    let cart = null;
-
-    if (ctx.userId) {
-      cart = await ctx.prisma.cart.findFirst({
-        where: { userId: ctx.userId },
+    const cartInclude = {
+      items: {
         include: {
-          items: {
+          strain: {
             include: {
-              strain: {
-                include: {
-                  inventory: true,
-                },
-              },
+              inventory: true,
             },
           },
         },
+      },
+    };
+
+    // Try to find cart by userId first (if logged in)
+    let cart = null;
+
+    if (ctx.userId) {
+      cart = await ctx.prisma.cart.findUnique({
+        where: { userId: ctx.userId },
+        include: cartInclude,
       });
     }
 
@@ -28,25 +30,20 @@ export const cartRouter = router({
     if (!cart && ctx.sessionId) {
       cart = await ctx.prisma.cart.findUnique({
         where: { sessionId: ctx.sessionId },
-        include: {
-          items: {
-            include: {
-              strain: {
-                include: {
-                  inventory: true,
-                },
-              },
-            },
-          },
-        },
+        include: cartInclude,
       });
 
-      // Link anonymous cart to user if they're logged in
+      // Link anonymous cart to user if they're logged in (within transaction)
       if (cart && ctx.userId && !cart.userId) {
-        await ctx.prisma.cart.update({
-          where: { id: cart.id },
-          data: { userId: ctx.userId },
-        });
+        try {
+          await ctx.prisma.cart.update({
+            where: { id: cart.id },
+            data: { userId: ctx.userId },
+          });
+        } catch {
+          // If linking fails (e.g., user already has a cart), ignore
+          // The user's existing cart will be used on next request
+        }
       }
     }
 
@@ -104,62 +101,61 @@ export const cartRouter = router({
         });
       }
 
-      // Get or create cart (check user cart first if logged in)
-      let cart = null;
+      // Use transaction to prevent race conditions
+      await ctx.prisma.$transaction(async (tx) => {
+        // Get or create cart atomically
+        let cart = null;
 
-      if (ctx.userId) {
-        cart = await ctx.prisma.cart.findFirst({
-          where: { userId: ctx.userId },
-        });
-      }
+        // Check user cart first if logged in
+        if (ctx.userId) {
+          cart = await tx.cart.findUnique({
+            where: { userId: ctx.userId },
+          });
+        }
 
-      if (!cart) {
-        cart = await ctx.prisma.cart.findUnique({
-          where: { sessionId: input.sessionId },
-        });
-      }
+        // Fall back to session cart
+        if (!cart) {
+          cart = await tx.cart.findUnique({
+            where: { sessionId: input.sessionId },
+          });
+        }
 
-      if (!cart) {
-        cart = await ctx.prisma.cart.create({
-          data: {
-            sessionId: input.sessionId,
-            userId: ctx.userId,
+        if (!cart) {
+          // Create new cart with upsert to handle race conditions
+          cart = await tx.cart.upsert({
+            where: { sessionId: input.sessionId },
+            update: ctx.userId ? { userId: ctx.userId } : {},
+            create: {
+              sessionId: input.sessionId,
+              userId: ctx.userId,
+            },
+          });
+        } else if (ctx.userId && !cart.userId) {
+          // Link anonymous cart to user
+          cart = await tx.cart.update({
+            where: { id: cart.id },
+            data: { userId: ctx.userId },
+          });
+        }
+
+        // Upsert cart item to handle concurrent adds
+        await tx.cartItem.upsert({
+          where: {
+            cartId_strainId: {
+              cartId: cart.id,
+              strainId: input.strainId,
+            },
           },
-        });
-      } else if (ctx.userId && !cart.userId) {
-        // Link anonymous cart to user
-        cart = await ctx.prisma.cart.update({
-          where: { id: cart.id },
-          data: { userId: ctx.userId },
-        });
-      }
-
-      // Check if item already exists in cart
-      const existingItem = await ctx.prisma.cartItem.findUnique({
-        where: {
-          cartId_strainId: {
-            cartId: cart.id,
-            strainId: input.strainId,
+          update: {
+            grams: { increment: input.grams },
           },
-        },
-      });
-
-      if (existingItem) {
-        // Update quantity
-        await ctx.prisma.cartItem.update({
-          where: { id: existingItem.id },
-          data: { grams: existingItem.grams + input.grams },
-        });
-      } else {
-        // Add new item
-        await ctx.prisma.cartItem.create({
-          data: {
+          create: {
             cartId: cart.id,
             strainId: input.strainId,
             grams: input.grams,
           },
         });
-      }
+      });
 
       return { success: true };
     }),

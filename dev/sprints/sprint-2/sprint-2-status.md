@@ -91,9 +91,17 @@ Authentication and age verification are fully implemented:
 
 ---
 
+## CodeRabbit Fixes Applied
+
+- [x] Fixed stagger.tsx delay prop to merge with variants
+- [x] Fixed strain-card.tsx to show 0% THC values
+- [x] Fixed cart race conditions with transactions
+- [x] Added unique constraint on Cart.userId
+- [x] Updated current-sprint.txt to sprint-2
+- [x] Updated cart linking strategy documentation
+
 ## Next Steps
 
-1. Run database migration for Cart.userId
-2. Create PR for CodeRabbit review
-3. Merge Sprint 1 PR first
-4. Begin Sprint 3 (Admin Dashboard)
+1. Run database migration for Cart.userId unique constraint
+2. Merge Sprint 1 PR first
+3. Begin Sprint 3 (Admin Dashboard)

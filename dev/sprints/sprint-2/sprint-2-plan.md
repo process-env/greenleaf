@@ -71,12 +71,12 @@ Protected Routes:
 - /checkout/success (post-purchase)
 ```
 
-### Cart Merge Strategy
-1. On login, check for anonymous cart (via session cookie)
-2. Check for existing user cart
-3. If both exist, merge items (sum quantities)
-4. Delete anonymous cart after merge
-5. Update session to use user cart
+### Cart Linking Strategy
+1. On cart access, check for user cart first (if logged in)
+2. Fall back to anonymous cart (via sessionId)
+3. If anonymous cart exists and user is logged in, link cart to user
+4. Unique constraint on userId ensures one cart per user
+5. Uses transactions to prevent race conditions
 
 ---
 

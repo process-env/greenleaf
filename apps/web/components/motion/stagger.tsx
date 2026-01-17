@@ -27,7 +27,21 @@ export function StaggerContainer({
   delay,
   ...props
 }: StaggerContainerProps) {
-  const variants = speedVariants[speed];
+  const baseVariants = speedVariants[speed];
+
+  // Merge delay into variants if provided, preserving staggerChildren
+  const variants = delay !== undefined
+    ? {
+        ...baseVariants,
+        animate: {
+          ...baseVariants.animate,
+          transition: {
+            ...(baseVariants.animate as { transition?: object }).transition,
+            delayChildren: delay,
+          },
+        },
+      }
+    : baseVariants;
 
   return (
     <motion.div
@@ -35,7 +49,6 @@ export function StaggerContainer({
       animate="animate"
       exit="exit"
       variants={variants}
-      {...(delay !== undefined && { transition: { delayChildren: delay } })}
       className={className}
       {...props}
     >

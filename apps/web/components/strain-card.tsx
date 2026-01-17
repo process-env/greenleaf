@@ -90,7 +90,7 @@ export function StrainCard({ strain }: StrainCardProps) {
               <h3 className="font-semibold text-lg leading-tight line-clamp-1 group-hover:text-primary transition-colors">
                 {strain.name}
               </h3>
-              {strain.thcPercent && (
+              {strain.thcPercent != null && (
                 <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
                   {strain.thcPercent}% THC
                 </span>
