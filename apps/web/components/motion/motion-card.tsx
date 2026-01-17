@@ -1,12 +1,13 @@
 "use client";
 
+import { ReactNode } from "react";
 import { motion, HTMLMotionProps } from "framer-motion";
 import { hoverScale, hoverLift, tapScale, transitions } from "@/lib/motion";
 
 type HoverEffect = "scale" | "lift" | "both" | "none";
 
 interface MotionCardProps extends Omit<HTMLMotionProps<"div">, "whileHover" | "whileTap"> {
-  children: React.ReactNode;
+  children: ReactNode;
   hoverEffect?: HoverEffect;
   className?: string;
 }

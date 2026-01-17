@@ -1,5 +1,6 @@
 "use client";
 
+import { ReactNode } from "react";
 import { motion, HTMLMotionProps } from "framer-motion";
 import { staggerContainer, staggerContainerFast, staggerContainerSlow, staggerItem, staggerItemScale } from "@/lib/motion";
 
@@ -7,7 +8,7 @@ type Speed = "fast" | "normal" | "slow";
 type ItemVariant = "slide" | "scale";
 
 interface StaggerContainerProps extends Omit<HTMLMotionProps<"div">, "initial" | "animate" | "exit" | "variants"> {
-  children: React.ReactNode;
+  children: ReactNode;
   speed?: Speed;
   className?: string;
   delay?: number;
@@ -23,7 +24,7 @@ export function StaggerContainer({
   children,
   speed = "normal",
   className,
-  delay = 0,
+  delay,
   ...props
 }: StaggerContainerProps) {
   const variants = speedVariants[speed];
@@ -34,7 +35,7 @@ export function StaggerContainer({
       animate="animate"
       exit="exit"
       variants={variants}
-      transition={{ delayChildren: delay }}
+      {...(delay !== undefined && { transition: { delayChildren: delay } })}
       className={className}
       {...props}
     >
@@ -44,7 +45,7 @@ export function StaggerContainer({
 }
 
 interface StaggerItemProps extends Omit<HTMLMotionProps<"div">, "initial" | "animate" | "exit" | "variants"> {
-  children: React.ReactNode;
+  children: ReactNode;
   variant?: ItemVariant;
   className?: string;
 }

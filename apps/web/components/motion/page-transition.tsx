@@ -1,10 +1,11 @@
 "use client";
 
+import { ReactNode } from "react";
 import { motion, HTMLMotionProps } from "framer-motion";
 import { pageTransition } from "@/lib/motion";
 
 interface PageTransitionProps extends Omit<HTMLMotionProps<"main">, "initial" | "animate" | "exit" | "variants"> {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 

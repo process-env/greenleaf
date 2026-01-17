@@ -151,12 +151,21 @@ export default function StrainsPage() {
                       <Badge
                         key={effect}
                         variant={selectedEffects.includes(effect) ? "default" : "outline"}
-                        className="cursor-pointer transition-colors hover:bg-primary/20"
+                        className="cursor-pointer transition-colors hover:bg-primary/20 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                         onClick={() => toggleEffect(effect)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            toggleEffect(effect);
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={selectedEffects.includes(effect)}
                       >
                         {effect}
                         {selectedEffects.includes(effect) && (
-                          <X className="h-3 w-3 ml-1" />
+                          <X className="h-3 w-3 ml-1" aria-hidden="true" />
                         )}
                       </Badge>
                     ))}
