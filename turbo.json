@@ -22,6 +22,18 @@
     },
     "db:push": {
       "cache": false
+    },
+    "test": {
+      "cache": false,
+      "persistent": true
+    },
+    "test:run": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "test/**"]
+    },
+    "test:coverage": {
+      "dependsOn": ["^build"],
+      "outputs": ["coverage/**"]
     }
   }
 }

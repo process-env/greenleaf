@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@greenleaf/ai": "workspace:*",
@@ -48,12 +53,23 @@
     "@greenleaf/eslint-config": "workspace:*",
     "@greenleaf/tailwind-config": "workspace:*",
     "@greenleaf/typescript-config": "workspace:*",
+    "@playwright/test": "^1.57.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^22.10.6",
     "@types/react": "^19.0.6",
     "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/coverage-v8": "^2.1.8",
     "autoprefixer": "^10.4.20",
+    "jsdom": "^25.0.1",
+    "msw": "^2.7.3",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9",
+    "vitest-mock-extended": "^2.0.2"
   }
 }
