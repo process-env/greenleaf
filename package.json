@@ -1,0 +1,27 @@
+{
+  "name": "greenleaf-dispensary",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.0",
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "type-check": "turbo type-check",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "db:generate": "turbo db:generate",
+    "db:push": "turbo db:push",
+    "db:studio": "pnpm --filter @greenleaf/db studio",
+    "scrape": "pnpm --filter @greenleaf/scraper scrape",
+    "seed": "pnpm --filter @greenleaf/scraper seed"
+  },
+  "devDependencies": {
+    "@greenleaf/eslint-config": "workspace:*",
+    "@greenleaf/typescript-config": "workspace:*",
+    "prettier": "^3.4.2",
+    "turbo": "^2.3.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

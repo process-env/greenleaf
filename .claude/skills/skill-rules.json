@@ -1,0 +1,1652 @@
+{
+    "version": "2.0",
+    "schemaVersion": "2026-01",
+    "lastUpdated": "2026-01-11",
+    "description": "Skill activation triggers for Claude Code. Controls when skills automatically suggest or block actions.",
+    "skills": {
+        "skill-developer": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Meta-skill for creating and managing Claude Code skills",
+            "promptTriggers": {
+                "keywords": [
+                    "skill system",
+                    "create skill",
+                    "add skill",
+                    "skill triggers",
+                    "skill rules",
+                    "hook system",
+                    "skill development",
+                    "skill-rules.json"
+                ],
+                "intentPatterns": [
+                    "(how do|how does|explain).*?skill",
+                    "(create|add|modify|build).*?skill",
+                    "skill.*?(work|trigger|activate|system)"
+                ]
+            }
+        },
+        "backend-dev-guidelines": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Backend development patterns for Node.js/Express/TypeScript",
+            "promptTriggers": {
+                "keywords": [
+                    "backend",
+                    "backend development",
+                    "microservice",
+                    "controller",
+                    "service",
+                    "repository",
+                    "route",
+                    "routing",
+                    "express",
+                    "API",
+                    "endpoint",
+                    "middleware",
+                    "validation",
+                    "Zod",
+                    "Prisma",
+                    "database access",
+                    "BaseController",
+                    "dependency injection",
+                    "unifiedConfig",
+                    "configuration"
+                ],
+                "intentPatterns": [
+                    "(create|add|implement|build).*?(route|endpoint|API|controller|service|repository)",
+                    "(fix|handle|debug).*?(error|exception|backend)",
+                    "(add|implement).*?(middleware|validation|error.*?handling)",
+                    "(organize|structure|refactor).*?(backend|service|API)",
+                    "(how to|best practice).*?(backend|route|controller|service)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "blog-api/src/**/*.ts",
+                    "auth-service/src/**/*.ts",
+                    "notifications-service/src/**/*.ts",
+                    "backend/**/*.ts",
+                    "api/**/*.ts",
+                    "server/**/*.ts",
+                    "services/**/*.ts"
+                ],
+                "pathExclusions": [
+                    "**/*.test.ts",
+                    "**/*.spec.ts"
+                ],
+                "contentPatterns": [
+                    "router\\.",
+                    "app\\.(get|post|put|delete|patch)",
+                    "export.*Controller",
+                    "export.*Service",
+                    "prisma\\."
+                ]
+            }
+        },
+        "frontend-dev-guidelines": {
+            "type": "guardrail",
+            "enforcement": "block",
+            "priority": "high",
+            "description": "React/TypeScript best practices including MUI v7 compatibility",
+            "promptTriggers": {
+                "keywords": [
+                    "component",
+                    "react component",
+                    "UI",
+                    "interface",
+                    "page",
+                    "modal",
+                    "dialog",
+                    "form",
+                    "MUI",
+                    "Material-UI",
+                    "Grid",
+                    "styling",
+                    "frontend",
+                    "React"
+                ],
+                "intentPatterns": [
+                    "(create|add|make|build|update|modify|edit).*?(component|UI|page|modal|dialog|form)",
+                    "(how to|best practice).*?(component|react|MUI)",
+                    "(style|design|layout).*?(component|UI)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "frontend/src/**/*.tsx",
+                    "frontend/src/**/*.ts",
+                    "client/src/**/*.tsx",
+                    "client/src/**/*.ts",
+                    "src/**/*.tsx"
+                ],
+                "pathExclusions": [
+                    "**/*.test.tsx",
+                    "**/*.test.ts",
+                    "**/*.spec.tsx",
+                    "**/*.spec.ts",
+                    "**/*.styles.ts",
+                    "**/vite.config.ts",
+                    "**/tsconfig.json"
+                ],
+                "contentPatterns": [
+                    "from '@mui/material';",
+                    "import.*Grid.*from.*@mui",
+                    "<Grid ",
+                    "Grid2",
+                    "Unstable_Grid",
+                    "makeStyles",
+                    "@material-ui/core"
+                ]
+            },
+            "blockMessage": "⚠️ BLOCKED - Frontend Best Practices Required\n\n📋 REQUIRED ACTION:\n1. Use Skill tool: 'frontend-dev-guidelines'\n2. Review MUI v7 patterns (Grid uses size={{}} prop, NOT xs/sm props)\n3. Check React/TypeScript best practices\n4. Use proper styling patterns\n5. Then retry this edit\n\nReason: Enforce MUI v7 compatibility and React best practices\nFile: {file_path}\n\n💡 TIP: Add '// @skip-validation' comment to skip future checks",
+            "skipConditions": {
+                "sessionSkillUsed": true,
+                "fileMarkers": [
+                    "@skip-validation"
+                ],
+                "envOverride": "SKIP_FRONTEND_GUIDELINES"
+            }
+        },
+        "route-tester": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Testing authenticated API routes with JWT cookie-based auth",
+            "promptTriggers": {
+                "keywords": [
+                    "test route",
+                    "test endpoint",
+                    "test API",
+                    "route testing",
+                    "API testing",
+                    "authenticated route",
+                    "JWT testing",
+                    "cookie auth",
+                    "test with auth"
+                ],
+                "intentPatterns": [
+                    "(test|debug|verify).*?(route|endpoint|API)",
+                    "(how to|how do I).*?test.*?(route|endpoint|API)",
+                    "test.*?(authenticated|auth|JWT|cookie)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/routes/**/*.ts",
+                    "**/test-*.js",
+                    "**/test-*.ts"
+                ],
+                "contentPatterns": [
+                    "router\\.(get|post|put|delete|patch)",
+                    "app\\.(get|post|put|delete|patch)"
+                ]
+            }
+        },
+        "error-tracking": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Sentry error tracking and performance monitoring patterns",
+            "promptTriggers": {
+                "keywords": [
+                    "error handling",
+                    "exception",
+                    "sentry",
+                    "error tracking",
+                    "captureException",
+                    "monitoring",
+                    "performance tracking"
+                ],
+                "intentPatterns": [
+                    "(add|create|implement|setup).*?(error handling|sentry|error tracking)",
+                    "(fix|handle|catch).*?(error|exception)",
+                    "(how to|best practice).*?(error|sentry|monitoring)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/instrument.ts",
+                    "**/sentry*.ts",
+                    "**/*Controller.ts",
+                    "**/*Service.ts"
+                ],
+                "contentPatterns": [
+                    "@sentry",
+                    "Sentry\\.",
+                    "captureException",
+                    "captureMessage"
+                ]
+            }
+        },
+        "nextjs-shadcn-reactflow": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Next.js App Router projects using shadcn/ui, Tailwind CSS, TypeScript, and React Flow builders",
+            "promptTriggers": {
+                "keywords": [
+                    "nextjs",
+                    "app router",
+                    "shadcn",
+                    "shadcn/ui",
+                    "tailwind",
+                    "react flow",
+                    "flow builder",
+                    "node editor",
+                    "diagram",
+                    "canvas"
+                ],
+                "intentPatterns": [
+                    "(create|setup|configure|bootstrap).*?(next.?js|app router)",
+                    "(add|integrate|install).*?(shadcn|react flow)",
+                    "(build|design).*?(flow|diagram|pipeline)",
+                    "(how to|best practice).*?(shadcn|react flow|flow builder)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "src/app/**/*.tsx",
+                    "app/**/*.tsx",
+                    "src/components/ui/**/*.tsx",
+                    "components/ui/**/*.tsx",
+                    "src/components/flow/**/*.tsx",
+                    "components/flow/**/*.tsx",
+                    "src/lib/flow/**/*.ts",
+                    "lib/flow/**/*.ts",
+                    "src/styles/**/*.css"
+                ],
+                "pathExclusions": [
+                    "**/*.test.tsx",
+                    "**/*.spec.tsx"
+                ],
+                "contentPatterns": [
+                    "from '@/components/ui/",
+                    "from \"@/components/ui/",
+                    "@reactflow/",
+                    "ReactFlow",
+                    "shadcn"
+                ]
+            }
+        },
+        "redis-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Redis caching strategies, pub/sub messaging, rate limiting, distributed locks, session management, and data structure patterns using ioredis",
+            "promptTriggers": {
+                "keywords": [
+                    "redis",
+                    "cache",
+                    "caching",
+                    "pub/sub",
+                    "pubsub",
+                    "rate limiting",
+                    "rate limit",
+                    "distributed lock",
+                    "session storage",
+                    "ioredis",
+                    "redis client",
+                    "message queue",
+                    "cache invalidation",
+                    "TTL",
+                    "redis cluster",
+                    "redlock",
+                    "sorted set",
+                    "redis stream"
+                ],
+                "intentPatterns": [
+                    "(add|implement|setup|create|configure).*?(cache|caching|redis)",
+                    "(how to|best practice).*?(cache|redis|rate limit)",
+                    "(distributed|session).*?(lock|storage|cache)",
+                    "(invalidate|expire|evict).*?cache",
+                    "(publish|subscribe|broadcast).*?(event|message)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/redis/**/*.ts",
+                    "**/cache/**/*.ts",
+                    "**/*Redis*.ts",
+                    "**/*Cache*.ts",
+                    "**/lib/redis.ts",
+                    "**/services/cache*.ts"
+                ],
+                "contentPatterns": [
+                    "ioredis",
+                    "import.*Redis",
+                    "new Redis\\(",
+                    "createClient.*redis",
+                    "redis\\.(get|set|del|hget|hset)",
+                    "\\.setex\\(",
+                    "\\.expire\\("
+                ]
+            }
+        },
+        "postgres-optimization": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "PostgreSQL query optimization, window functions (ROW_NUMBER, RANK, LEAD/LAG), table partitioning, indexing strategies, EXPLAIN ANALYZE, CTEs, and performance tuning",
+            "promptTriggers": {
+                "keywords": [
+                    "postgres",
+                    "postgresql",
+                    "query optimization",
+                    "slow query",
+                    "window function",
+                    "partition",
+                    "partitioning",
+                    "EXPLAIN",
+                    "EXPLAIN ANALYZE",
+                    "ROW_NUMBER",
+                    "RANK",
+                    "DENSE_RANK",
+                    "LEAD",
+                    "LAG",
+                    "OVER",
+                    "index",
+                    "indexing",
+                    "vacuum",
+                    "CTE",
+                    "recursive CTE",
+                    "query plan",
+                    "database optimization",
+                    "pgbouncer",
+                    "connection pool"
+                ],
+                "intentPatterns": [
+                    "(optimize|improve|speed up|tune).*?(query|database|postgres|sql)",
+                    "(add|create|implement).*?(partition|index|window)",
+                    "(how to|best practice).*?(postgres|partition|window function|index)",
+                    "(analyze|debug|fix).*?(slow|performance|query)",
+                    "(explain|understand).*?(query plan|execution)",
+                    "(rank|number|order).*?(rows|records|results)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/migrations/**/*.sql",
+                    "**/queries/**/*.sql",
+                    "**/sql/**/*.sql",
+                    "**/*.sql",
+                    "**/prisma/migrations/**/*"
+                ],
+                "contentPatterns": [
+                    "PARTITION BY",
+                    "OVER\\s*\\(",
+                    "ROW_NUMBER\\s*\\(",
+                    "RANK\\s*\\(",
+                    "DENSE_RANK\\s*\\(",
+                    "LEAD\\s*\\(",
+                    "LAG\\s*\\(",
+                    "EXPLAIN ANALYZE",
+                    "CREATE INDEX",
+                    "WITH RECURSIVE"
+                ]
+            }
+        },
+        "shadcn-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "shadcn/ui component patterns, Radix primitives, Tailwind CSS theming, form handling with react-hook-form and zod, accessible UI components, and customization strategies",
+            "promptTriggers": {
+                "keywords": [
+                    "shadcn",
+                    "shadcn/ui",
+                    "radix",
+                    "radix-ui",
+                    "ui component",
+                    "component library",
+                    "tailwind component",
+                    "dialog",
+                    "modal",
+                    "form",
+                    "button",
+                    "card",
+                    "data table",
+                    "sidebar",
+                    "accordion",
+                    "tabs",
+                    "dropdown",
+                    "popover",
+                    "toast",
+                    "sonner",
+                    "cn utility",
+                    "cva"
+                ],
+                "intentPatterns": [
+                    "(add|install|use|setup).*?(shadcn|component)",
+                    "(create|build|make).*?(form|modal|dialog|table|ui)",
+                    "(how to|customize|extend).*?(shadcn|component|theme)",
+                    "(style|design|theme).*?(component|ui|dark mode)",
+                    "(add|create).*?(variant|animation)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "src/components/ui/**/*.tsx",
+                    "components/ui/**/*.tsx",
+                    "**/components.json",
+                    "src/lib/utils.ts",
+                    "lib/utils.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']@/components/ui/",
+                    "from [\"']@radix-ui/",
+                    "cn\\(",
+                    "cva\\(",
+                    "VariantProps",
+                    "buttonVariants",
+                    "sonner"
+                ]
+            }
+        },
+        "nextjs-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Next.js 14+ App Router patterns, Server Components, Server Actions, data fetching with cache/revalidation, routing (parallel, intercepting, groups), middleware, and performance optimization",
+            "promptTriggers": {
+                "keywords": [
+                    "nextjs",
+                    "next.js",
+                    "next js",
+                    "app router",
+                    "server component",
+                    "client component",
+                    "server action",
+                    "use server",
+                    "use client",
+                    "RSC",
+                    "SSR",
+                    "SSG",
+                    "ISR",
+                    "revalidate",
+                    "revalidatePath",
+                    "revalidateTag",
+                    "generateStaticParams",
+                    "generateMetadata",
+                    "middleware",
+                    "layout",
+                    "loading",
+                    "error boundary",
+                    "parallel routes",
+                    "intercepting routes",
+                    "route handler"
+                ],
+                "intentPatterns": [
+                    "(create|setup|build|add).*?(next|page|route|api|layout)",
+                    "(how to|best practice).*?(next|server component|server action|RSC)",
+                    "(add|implement).*?(middleware|layout|loading|streaming|suspense)",
+                    "(fetch|cache|revalidate).*?(data|server|page)",
+                    "(optimize|improve).*?(performance|bundle|loading)",
+                    "(handle|process).*?(form|mutation|action)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "src/app/**/*.tsx",
+                    "src/app/**/*.ts",
+                    "app/**/*.tsx",
+                    "app/**/*.ts",
+                    "next.config.*",
+                    "middleware.ts",
+                    "src/middleware.ts"
+                ],
+                "pathExclusions": [
+                    "**/*.test.tsx",
+                    "**/*.spec.tsx"
+                ],
+                "contentPatterns": [
+                    "[\"']use server[\"']",
+                    "[\"']use client[\"']",
+                    "export.*generateMetadata",
+                    "export.*generateStaticParams",
+                    "NextRequest",
+                    "NextResponse",
+                    "revalidatePath",
+                    "revalidateTag",
+                    "unstable_cache"
+                ]
+            }
+        },
+        "tomtom-maps": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "TomTom Maps APIs and SDKs for location-based services including Maps Display, Search/Geocoding, Routing/Navigation, and Traffic",
+            "promptTriggers": {
+                "keywords": [
+                    "tomtom",
+                    "map",
+                    "maps",
+                    "geocoding",
+                    "geocode",
+                    "reverse geocoding",
+                    "routing",
+                    "route",
+                    "navigation",
+                    "directions",
+                    "traffic",
+                    "traffic flow",
+                    "location",
+                    "coordinates",
+                    "latitude",
+                    "longitude",
+                    "marker",
+                    "popup",
+                    "geofencing",
+                    "POI",
+                    "points of interest",
+                    "search location",
+                    "address lookup",
+                    "EV routing",
+                    "reachable range"
+                ],
+                "intentPatterns": [
+                    "(add|display|show|create).*?(map|marker|route|directions)",
+                    "(search|find|locate).*?(address|location|place|POI)",
+                    "(convert|get).*?(coordinates|address|geocode)",
+                    "(calculate|plan|show).*?(route|directions|navigation)",
+                    "(how to|best practice).*?(map|routing|geocoding|tomtom)",
+                    "(integrate|setup|configure).*?(tomtom|maps|location)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/map/**/*.ts",
+                    "**/map/**/*.tsx",
+                    "**/maps/**/*.ts",
+                    "**/maps/**/*.tsx",
+                    "**/location/**/*.ts",
+                    "**/location/**/*.tsx",
+                    "**/routing/**/*.ts"
+                ],
+                "contentPatterns": [
+                    "@tomtom-international",
+                    "tomtom",
+                    "tt\\.map",
+                    "tt\\.services",
+                    "fuzzySearch",
+                    "calculateRoute",
+                    "reverseGeocode",
+                    "api\\.tomtom\\.com"
+                ]
+            }
+        },
+        "framer-motion": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Framer Motion (Motion for React) animation library patterns including motion components, variants, gestures, transitions, layout animations, and scroll animations",
+            "promptTriggers": {
+                "keywords": [
+                    "framer motion",
+                    "framer-motion",
+                    "motion",
+                    "animation",
+                    "animate",
+                    "transition",
+                    "variants",
+                    "gesture",
+                    "whileHover",
+                    "whileTap",
+                    "whileDrag",
+                    "drag",
+                    "spring",
+                    "useAnimate",
+                    "useSpring",
+                    "useScroll",
+                    "useTransform",
+                    "useMotionValue",
+                    "AnimatePresence",
+                    "exit animation",
+                    "layout animation",
+                    "layoutId",
+                    "scroll animation",
+                    "parallax",
+                    "motion.div",
+                    "keyframes"
+                ],
+                "intentPatterns": [
+                    "(add|create|implement).*?(animation|transition|gesture)",
+                    "(animate|motion).*?(component|element|div|button)",
+                    "(how to|best practice).*?(animate|animation|framer|motion)",
+                    "(drag|hover|tap|scroll).*?(animation|effect|interaction)",
+                    "(exit|enter|page).*?(animation|transition)",
+                    "(layout|shared).*?(animation|transition)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/components/**/*.tsx",
+                    "**/animations/**/*.ts",
+                    "**/animations/**/*.tsx",
+                    "src/**/*.tsx"
+                ],
+                "contentPatterns": [
+                    "from [\"']framer-motion[\"']",
+                    "from [\"']motion[\"']",
+                    "motion\\.",
+                    "<motion\\.",
+                    "useAnimate",
+                    "useSpring",
+                    "useScroll",
+                    "useTransform",
+                    "useMotionValue",
+                    "AnimatePresence",
+                    "whileHover",
+                    "whileTap",
+                    "whileDrag",
+                    "layoutId"
+                ]
+            }
+        },
+        "zustand-state": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Zustand state management for React - store creation, selectors, middleware (persist, devtools, immer), slices pattern, and TypeScript patterns",
+            "promptTriggers": {
+                "keywords": [
+                    "zustand",
+                    "state management",
+                    "global state",
+                    "store",
+                    "create store",
+                    "useStore",
+                    "selector",
+                    "useShallow",
+                    "persist",
+                    "devtools",
+                    "immer",
+                    "middleware",
+                    "slices",
+                    "slice pattern",
+                    "subscribeWithSelector",
+                    "setState",
+                    "getState"
+                ],
+                "intentPatterns": [
+                    "(create|setup|add|implement).*?(store|state|zustand)",
+                    "(how to|best practice).*?(zustand|state management|store)",
+                    "(persist|save).*?(state|store)",
+                    "(organize|split|slice).*?(store|state)",
+                    "(select|subscribe).*?(state|store)",
+                    "(global|shared).*?state"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/store/**/*.ts",
+                    "**/store/**/*.tsx",
+                    "**/stores/**/*.ts",
+                    "**/stores/**/*.tsx",
+                    "**/*Store.ts",
+                    "**/*store.ts",
+                    "**/slices/**/*.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']zustand[\"']",
+                    "from [\"']zustand/middleware[\"']",
+                    "import.*create.*from.*zustand",
+                    "create<.*>\\(\\)\\(",
+                    "StateCreator",
+                    "useStore\\(",
+                    "devtools\\(",
+                    "persist\\(",
+                    "immer\\(",
+                    "subscribeWithSelector"
+                ]
+            }
+        },
+        "maplibre-animation": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "MapLibre GL JS patterns for real-time vehicle tracking with smooth arc-length interpolation along polyline tracks. Covers Turf.js integration, train animation, and eliminating marker teleporting.",
+            "promptTriggers": {
+                "keywords": [
+                    "maplibre",
+                    "maplibre-gl",
+                    "map animation",
+                    "marker animation",
+                    "animate marker",
+                    "train tracking",
+                    "vehicle tracking",
+                    "real-time tracking",
+                    "smooth animation",
+                    "arc length",
+                    "arc-length",
+                    "polyline",
+                    "track animation",
+                    "turf.js",
+                    "turf",
+                    "nearestPointOnLine",
+                    "along",
+                    "lineString",
+                    "geojson source",
+                    "setLngLat",
+                    "requestAnimationFrame",
+                    "lerp",
+                    "interpolation",
+                    "teleport",
+                    "teleporting"
+                ],
+                "intentPatterns": [
+                    "(animate|move|track).*?(marker|train|vehicle|point)",
+                    "(smooth|eliminate|fix|stop).*?(animation|teleport|jump)",
+                    "(add|create|implement).*?(map|marker|tracking)",
+                    "(how to|best practice).*?(maplibre|map animation|marker)",
+                    "(arc.?length|parametri[sz]e).*?(track|line|polyline)",
+                    "(interpolate|lerp).*?(position|coordinate|marker)",
+                    "(real.?time|live).*?(track|map|position)",
+                    "(turf|nearestPoint|along).*?(line|track)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/map/**/*.ts",
+                    "**/map/**/*.tsx",
+                    "**/components/map/**/*.ts",
+                    "**/components/map/**/*.tsx",
+                    "**/*Map*.tsx",
+                    "**/*Map*.ts",
+                    "**/hooks/useMap*.ts",
+                    "**/hooks/use*Animation*.ts",
+                    "**/hooks/use*Marker*.ts"
+                ],
+                "pathExclusions": [
+                    "**/*.test.ts",
+                    "**/*.test.tsx",
+                    "**/*.spec.ts",
+                    "**/*.spec.tsx"
+                ],
+                "contentPatterns": [
+                    "maplibre-gl",
+                    "maplibregl",
+                    "new.*Map\\(",
+                    "new.*Marker\\(",
+                    "setLngLat",
+                    "@turf/",
+                    "turf\\.",
+                    "nearestPointOnLine",
+                    "along\\(",
+                    "lineString\\(",
+                    "requestAnimationFrame",
+                    "TrainAnimState",
+                    "animateTrains"
+                ]
+            }
+        },
+        "tailwindcss": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Tailwind CSS v4 utility-first framework patterns including responsive design, state variants, dark mode, flexbox/grid layouts, @theme customization, and modern CSS features",
+            "promptTriggers": {
+                "keywords": [
+                    "tailwind",
+                    "tailwindcss",
+                    "utility class",
+                    "utility-first",
+                    "responsive",
+                    "breakpoint",
+                    "hover state",
+                    "focus state",
+                    "dark mode",
+                    "dark:",
+                    "sm:",
+                    "md:",
+                    "lg:",
+                    "xl:",
+                    "flex",
+                    "grid",
+                    "gap",
+                    "space-x",
+                    "space-y",
+                    "padding",
+                    "margin",
+                    "bg-",
+                    "text-",
+                    "border-",
+                    "rounded",
+                    "shadow",
+                    "@theme",
+                    "@layer",
+                    "@apply",
+                    "group-hover",
+                    "peer",
+                    "container"
+                ],
+                "intentPatterns": [
+                    "(style|design|layout).*?(component|page|UI)",
+                    "(add|apply|use).*?(tailwind|utility|class)",
+                    "(how to|best practice).*?(tailwind|responsive|dark mode)",
+                    "(create|make|build).*?(responsive|mobile|layout)",
+                    "(customize|configure|extend).*?(theme|tailwind|colors)",
+                    "(flex|grid|gap|space).*?(layout|items|container)",
+                    "(hover|focus|active|disabled).*?(state|style)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/*.tsx",
+                    "**/*.jsx",
+                    "**/*.html",
+                    "**/tailwind.config.*",
+                    "**/globals.css",
+                    "**/styles/**/*.css"
+                ],
+                "pathExclusions": [
+                    "**/*.test.tsx",
+                    "**/*.test.jsx",
+                    "node_modules/**"
+                ],
+                "contentPatterns": [
+                    "class(Name)?=[\"'][^\"']*\\b(flex|grid|bg-|text-|p-|m-|w-|h-|rounded|shadow)",
+                    "@import [\"']tailwindcss[\"']",
+                    "@theme\\s*\\{",
+                    "@layer\\s+(base|components|utilities)",
+                    "@apply\\s+",
+                    "tailwindcss",
+                    "@tailwindcss/vite"
+                ]
+            }
+        },
+        "react-hooks": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Comprehensive React hooks mastery - useState vs useReducer decisions, effect patterns, performance optimization with useMemo/useCallback, React 19 hooks (useActionState, useOptimistic, use), and custom hook patterns",
+            "promptTriggers": {
+                "keywords": [
+                    "useState",
+                    "useReducer",
+                    "useEffect",
+                    "useLayoutEffect",
+                    "useContext",
+                    "useRef",
+                    "useMemo",
+                    "useCallback",
+                    "useTransition",
+                    "useDeferredValue",
+                    "useActionState",
+                    "useOptimistic",
+                    "useFormStatus",
+                    "useSyncExternalStore",
+                    "useId",
+                    "useImperativeHandle",
+                    "useDebugValue",
+                    "custom hook",
+                    "hook",
+                    "hooks",
+                    "react hook",
+                    "state management",
+                    "side effect",
+                    "cleanup function",
+                    "dependency array",
+                    "stale closure",
+                    "memoization",
+                    "performance optimization",
+                    "re-render",
+                    "form action",
+                    "server action",
+                    "optimistic update"
+                ],
+                "intentPatterns": [
+                    "(which|what).*?(hook|useState|useReducer).*?(use|choose|pick)",
+                    "(useState|useReducer).*?(vs|or|versus)",
+                    "(when|should).*?(use|choose).*?(hook|useState|useReducer|useEffect|useMemo|useCallback)",
+                    "(create|make|build|write).*?(custom hook|hook)",
+                    "(optimize|performance|slow|re-render).*?(component|hook)",
+                    "(fix|debug|solve).*?(stale|closure|dependency|infinite loop)",
+                    "(how to|best practice).*?(hook|state|effect|memo)",
+                    "(useEffect|useLayoutEffect).*?(vs|or|when)",
+                    "(useMemo|useCallback).*?(when|should|need)",
+                    "(form|action|server).*?(hook|useActionState|useFormStatus)",
+                    "(optimistic|pending|loading).*?(state|update|UI)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/*.tsx",
+                    "**/*.jsx",
+                    "**/hooks/**/*.ts",
+                    "**/hooks/**/*.tsx",
+                    "**/use*.ts",
+                    "**/use*.tsx"
+                ],
+                "pathExclusions": [
+                    "**/*.test.tsx",
+                    "**/*.test.ts",
+                    "**/*.spec.tsx",
+                    "**/*.spec.ts",
+                    "node_modules/**"
+                ],
+                "contentPatterns": [
+                    "useState\\(",
+                    "useReducer\\(",
+                    "useEffect\\(",
+                    "useLayoutEffect\\(",
+                    "useContext\\(",
+                    "useRef\\(",
+                    "useMemo\\(",
+                    "useCallback\\(",
+                    "useTransition\\(",
+                    "useDeferredValue\\(",
+                    "useActionState\\(",
+                    "useOptimistic\\(",
+                    "useFormStatus\\(",
+                    "function use[A-Z]",
+                    "const use[A-Z].*?=.*?\\("
+                ]
+            }
+        },
+        "inngest": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Inngest event-driven durable execution platform for background jobs, workflows, and step functions. Covers function creation, step orchestration, flow control (concurrency, throttling, rate limiting, debounce), error handling, retries, batching, and middleware patterns.",
+            "promptTriggers": {
+                "keywords": [
+                    "inngest",
+                    "background job",
+                    "background jobs",
+                    "durable execution",
+                    "step function",
+                    "step functions",
+                    "workflow",
+                    "event-driven",
+                    "async job",
+                    "job queue",
+                    "delayed job",
+                    "scheduled job",
+                    "cron job",
+                    "retry",
+                    "retries",
+                    "throttle",
+                    "throttling",
+                    "rate limit",
+                    "debounce",
+                    "concurrency",
+                    "step.run",
+                    "step.sleep",
+                    "step.waitForEvent",
+                    "NonRetriableError",
+                    "onFailure",
+                    "batchEvents",
+                    "createFunction"
+                ],
+                "intentPatterns": [
+                    "(create|add|implement|build).*?(background job|workflow|step function|async task)",
+                    "(how to|best practice).*?(inngest|background job|workflow|step function)",
+                    "(schedule|delay|queue).*?(job|task|function|execution)",
+                    "(retry|error handling|failure).*?(job|task|function|workflow)",
+                    "(throttle|rate limit|concurrency|debounce).*?(function|execution|job)",
+                    "(wait for|sleep|pause).*?(event|time|duration)",
+                    "(event-driven|event driven|durable).*?(execution|workflow|function)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/inngest/**/*.ts",
+                    "**/inngest/**/*.tsx",
+                    "**/functions/**/*.ts",
+                    "**/jobs/**/*.ts",
+                    "**/workflows/**/*.ts",
+                    "**/lib/inngest.ts",
+                    "**/api/inngest/**/*.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']inngest[\"']",
+                    "inngest\\.createFunction",
+                    "new Inngest\\(",
+                    "step\\.run\\(",
+                    "step\\.sleep\\(",
+                    "step\\.waitForEvent\\(",
+                    "step\\.invoke\\(",
+                    "NonRetriableError",
+                    "RetryAfterError",
+                    "batchEvents",
+                    "throttle:",
+                    "concurrency:",
+                    "rateLimit:"
+                ]
+            }
+        },
+        "ai-sdk-agents": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Building production AI agents with Vercel AI SDK. Covers tool calling, multi-step reasoning, streaming, memory systems, multi-agent orchestration, ReAct patterns, and production best practices.",
+            "promptTriggers": {
+                "keywords": [
+                    "ai sdk",
+                    "vercel ai",
+                    "ai agent",
+                    "agent",
+                    "tool calling",
+                    "generateText",
+                    "streamText",
+                    "multi-step",
+                    "maxSteps",
+                    "agentic",
+                    "ReAct",
+                    "chain of thought",
+                    "reasoning",
+                    "multi-agent",
+                    "supervisor pattern",
+                    "agent orchestration",
+                    "agent memory",
+                    "working memory",
+                    "persistent memory",
+                    "tool execution",
+                    "onStepFinish",
+                    "agent loop",
+                    "autonomous agent"
+                ],
+                "intentPatterns": [
+                    "(build|create|implement|make).*?(agent|agentic|autonomous)",
+                    "(how to|best practice).*?(agent|tool calling|multi-step|reasoning)",
+                    "(add|implement).*?(tool|tools|tool calling)",
+                    "(agent|agentic).*?(pattern|architecture|system)",
+                    "(multi-agent|supervisor|orchestrat)",
+                    "(memory|context).*?(agent|conversation)",
+                    "(stream|streaming).*?(agent|response|ai)",
+                    "(production|deploy).*?agent"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/agents/**/*.ts",
+                    "**/agent/**/*.ts",
+                    "**/ai/**/*.ts",
+                    "**/lib/ai.ts",
+                    "**/lib/agent.ts",
+                    "**/api/chat/**/*.ts",
+                    "**/api/agent/**/*.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']ai[\"']",
+                    "from [\"']@ai-sdk",
+                    "generateText",
+                    "streamText",
+                    "import.*tool.*from.*ai",
+                    "maxSteps",
+                    "onStepFinish",
+                    "toolCalls",
+                    "toolResults"
+                ]
+            }
+        },
+        "firecrawl": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Firecrawl web scraping and crawling API for extracting clean markdown/HTML from websites. Covers scraping, crawling, batch operations, structured data extraction with LLM, deep research, and LLMs.txt generation.",
+            "promptTriggers": {
+                "keywords": [
+                    "firecrawl",
+                    "web scraping",
+                    "scrape",
+                    "scraping",
+                    "crawl",
+                    "crawling",
+                    "crawler",
+                    "extract data",
+                    "website to markdown",
+                    "html to markdown",
+                    "LLMs.txt",
+                    "deep research",
+                    "batch scrape",
+                    "web extraction",
+                    "scrape url",
+                    "crawl website",
+                    "extract content",
+                    "website content",
+                    "page content",
+                    "web content",
+                    "RAG pipeline",
+                    "ingest website",
+                    "website data"
+                ],
+                "intentPatterns": [
+                    "(scrape|crawl|extract|fetch|get).*?(website|page|url|content|data|html|markdown)",
+                    "(convert|transform).*?(website|page|html).*?(markdown|text|data)",
+                    "(how to|best practice).*?(scrape|crawl|extract|firecrawl)",
+                    "(build|create|implement).*?(scraper|crawler|RAG|pipeline)",
+                    "(website|page|url).*?(to|into).*?(markdown|text|json|data)",
+                    "(structured|extract).*?data.*?(from|website|page)",
+                    "(monitor|track|watch).*?(website|page|changes)",
+                    "(research|analyze).*?(web|website|topic)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/scraper/**/*.ts",
+                    "**/scrapers/**/*.ts",
+                    "**/crawl/**/*.ts",
+                    "**/crawler/**/*.ts",
+                    "**/ingest/**/*.ts",
+                    "**/extraction/**/*.ts"
+                ],
+                "contentPatterns": [
+                    "@mendable/firecrawl",
+                    "firecrawl-js",
+                    "FirecrawlApp",
+                    "firecrawl\\.scrapeUrl",
+                    "firecrawl\\.crawlUrl",
+                    "firecrawl\\.mapUrl",
+                    "firecrawl\\.batchScrape",
+                    "firecrawl\\.extract",
+                    "firecrawl\\.deepResearch"
+                ]
+            }
+        },
+        "convex-realtime": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Convex reactive database and sync engine for building real-time applications. Covers queries, mutations, actions, schemas, indexes, real-time subscriptions, TypeScript patterns, and best practices for live-updating apps.",
+            "promptTriggers": {
+                "keywords": [
+                    "convex",
+                    "real-time",
+                    "realtime",
+                    "real time",
+                    "sync engine",
+                    "reactive database",
+                    "live update",
+                    "live-updating",
+                    "useQuery",
+                    "useMutation",
+                    "useAction",
+                    "defineSchema",
+                    "defineTable",
+                    "convex query",
+                    "convex mutation",
+                    "convex action",
+                    "convex schema",
+                    "convex index",
+                    "v.string",
+                    "v.id",
+                    "v.object",
+                    "withIndex",
+                    "ctx.db",
+                    "ctx.scheduler",
+                    "cronJobs",
+                    "internalMutation",
+                    "internalQuery",
+                    "sports database",
+                    "live scores",
+                    "MLB",
+                    "baseball"
+                ],
+                "intentPatterns": [
+                    "(create|add|implement|build).*?(convex|real-time|realtime|reactive)",
+                    "(how to|best practice).*?(convex|real-time database|sync engine)",
+                    "(query|mutation|action).*?(convex|database|real-time)",
+                    "(schema|index|table).*?(convex|design|define)",
+                    "(subscribe|listen|watch).*?(data|changes|updates)",
+                    "(live|real-time|realtime).*?(update|sync|data|score)",
+                    "(schedule|cron|background).*?(convex|job|function)",
+                    "(sports|game|score|MLB|baseball).*?(database|tracking|live)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/convex/**/*.ts",
+                    "**/convex/**/*.tsx",
+                    "convex/*.ts",
+                    "convex/schema.ts",
+                    "convex/crons.ts",
+                    "**/convex/_generated/**"
+                ],
+                "pathExclusions": [
+                    "**/convex/_generated/**"
+                ],
+                "contentPatterns": [
+                    "from [\"']convex[\"']",
+                    "from [\"']\\./_generated/server[\"']",
+                    "from [\"']\\./_generated/api[\"']",
+                    "from [\"']convex/react[\"']",
+                    "from [\"']convex/server[\"']",
+                    "from [\"']convex/values[\"']",
+                    "defineSchema\\(",
+                    "defineTable\\(",
+                    "v\\.string\\(",
+                    "v\\.id\\(",
+                    "v\\.object\\(",
+                    "ctx\\.db\\.",
+                    "useQuery\\(",
+                    "useMutation\\(",
+                    "useAction\\(",
+                    "withIndex\\(",
+                    "cronJobs\\(",
+                    "internalMutation",
+                    "internalQuery",
+                    "internalAction"
+                ]
+            }
+        },
+        "testing-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Comprehensive testing patterns for React/TypeScript with Vitest, React Testing Library, Playwright E2E, and MSW v2 mocking",
+            "promptTriggers": {
+                "keywords": [
+                    "vitest",
+                    "playwright",
+                    "msw",
+                    "testing-library",
+                    "test",
+                    "spec",
+                    "e2e",
+                    "unit test",
+                    "integration test",
+                    "component test",
+                    "mock api",
+                    "test coverage",
+                    "snapshot",
+                    "render",
+                    "screen",
+                    "userEvent",
+                    "expect",
+                    "describe",
+                    "it",
+                    "beforeEach",
+                    "afterEach",
+                    "vi.mock",
+                    "vi.fn",
+                    "Page Object Model",
+                    "POM",
+                    "fixture"
+                ],
+                "intentPatterns": [
+                    "(write|add|create|implement).*?(test|spec|e2e)",
+                    "(test|spec).*?(component|hook|function|api|page)",
+                    "(mock|stub|fake).*?(api|service|function|module)",
+                    "(how to|best practice).*?(test|vitest|playwright|msw)",
+                    "(setup|configure).*?(vitest|playwright|testing)",
+                    "(coverage|snapshot).*?(test|report)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/*.test.ts",
+                    "**/*.test.tsx",
+                    "**/*.spec.ts",
+                    "**/*.spec.tsx",
+                    "**/tests/**/*.ts",
+                    "**/tests/**/*.tsx",
+                    "**/e2e/**/*.ts",
+                    "**/e2e/**/*.tsx",
+                    "**/mocks/**/*.ts",
+                    "**/vitest.config.ts",
+                    "**/playwright.config.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']vitest[\"']",
+                    "from [\"']@testing-library",
+                    "from [\"']@playwright/test[\"']",
+                    "from [\"']msw[\"']",
+                    "describe\\(",
+                    "it\\(",
+                    "test\\(",
+                    "expect\\(",
+                    "vi\\.mock",
+                    "vi\\.fn",
+                    "render\\(",
+                    "screen\\.",
+                    "userEvent",
+                    "http\\.get\\(",
+                    "http\\.post\\(",
+                    "setupServer"
+                ]
+            }
+        },
+        "auth-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Authentication patterns for Next.js with Auth.js v5 and Clerk covering sessions, protected routes, OAuth, and multi-provider setup",
+            "promptTriggers": {
+                "keywords": [
+                    "auth",
+                    "authentication",
+                    "login",
+                    "logout",
+                    "session",
+                    "clerk",
+                    "nextauth",
+                    "authjs",
+                    "auth.js",
+                    "OAuth",
+                    "JWT",
+                    "protected route",
+                    "middleware",
+                    "sign in",
+                    "sign up",
+                    "password",
+                    "credentials",
+                    "magic link",
+                    "social login",
+                    "google auth",
+                    "github auth",
+                    "user session",
+                    "access token",
+                    "refresh token"
+                ],
+                "intentPatterns": [
+                    "(add|implement|setup|create).*?(auth|authentication|login|session)",
+                    "(protect|secure|guard).*?(route|page|api|endpoint)",
+                    "(how to|best practice).*?(auth|login|session|clerk|nextauth)",
+                    "(user|session).*?(management|handling|storage)",
+                    "(OAuth|social).*?(login|auth|provider)",
+                    "(middleware|interceptor).*?(auth|session|token)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/auth/**/*.ts",
+                    "**/auth/**/*.tsx",
+                    "**/auth.ts",
+                    "**/auth.config.ts",
+                    "**/middleware.ts",
+                    "src/middleware.ts",
+                    "**/lib/auth.ts",
+                    "**/providers/**/*.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']next-auth[\"']",
+                    "from [\"']@auth/",
+                    "from [\"']@clerk/",
+                    "NextAuth\\(",
+                    "auth\\(",
+                    "signIn\\(",
+                    "signOut\\(",
+                    "useSession\\(",
+                    "getServerSession",
+                    "ClerkProvider",
+                    "useUser\\(",
+                    "useAuth\\(",
+                    "currentUser\\(",
+                    "withClerkMiddleware"
+                ]
+            }
+        },
+        "trpc-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Type-safe API development with tRPC v11 covering router setup, procedures, React Query integration, and Next.js App Router",
+            "promptTriggers": {
+                "keywords": [
+                    "trpc",
+                    "t-rpc",
+                    "procedure",
+                    "router",
+                    "createTRPCReact",
+                    "initTRPC",
+                    "type-safe api",
+                    "type safe api",
+                    "TRPCError",
+                    "trpc router",
+                    "trpc client",
+                    "trpc server",
+                    "trpc middleware",
+                    "trpc context",
+                    "trpc query",
+                    "trpc mutation",
+                    "trpc subscription",
+                    "createCaller",
+                    "inferRouterInputs",
+                    "inferRouterOutputs"
+                ],
+                "intentPatterns": [
+                    "(create|add|implement|setup).*?(trpc|procedure|router)",
+                    "(type.?safe|typesafe).*?(api|endpoint|route)",
+                    "(how to|best practice).*?(trpc|procedure|type-safe api)",
+                    "(trpc).*?(query|mutation|subscription|middleware)",
+                    "(api|endpoint).*?(trpc|type-safe|typesafe)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/trpc/**/*.ts",
+                    "**/trpc/**/*.tsx",
+                    "**/routers/**/*.ts",
+                    "**/procedures/**/*.ts",
+                    "**/lib/trpc.ts",
+                    "**/server/trpc.ts",
+                    "**/api/trpc/**/*.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']@trpc/",
+                    "initTRPC",
+                    "createTRPCReact",
+                    "createTRPCClient",
+                    "publicProcedure",
+                    "protectedProcedure",
+                    "router\\(",
+                    "TRPCError",
+                    "createCaller",
+                    "t\\.router",
+                    "t\\.procedure",
+                    "t\\.middleware"
+                ]
+            }
+        },
+        "drizzle-orm": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Type-safe SQL with Drizzle ORM covering schema definition, queries, relations, migrations, and database patterns",
+            "promptTriggers": {
+                "keywords": [
+                    "drizzle",
+                    "drizzle-orm",
+                    "drizzle-kit",
+                    "pgTable",
+                    "mysqlTable",
+                    "sqliteTable",
+                    "schema",
+                    "migration",
+                    "db.select",
+                    "db.insert",
+                    "db.update",
+                    "db.delete",
+                    "relations",
+                    "one",
+                    "many",
+                    "eq",
+                    "and",
+                    "or",
+                    "sql",
+                    "inArray",
+                    "drizzle schema",
+                    "drizzle migration",
+                    "drizzle query"
+                ],
+                "intentPatterns": [
+                    "(create|add|define).*?(schema|table|column|migration)",
+                    "(database|db).*?(schema|drizzle|query|migration)",
+                    "(how to|best practice).*?(drizzle|schema|migration|query)",
+                    "(query|select|insert|update|delete).*?(drizzle|database)",
+                    "(relation|join|foreign key).*?(drizzle|table)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/drizzle/**/*.ts",
+                    "**/db/**/*.ts",
+                    "**/schema.ts",
+                    "**/schema/**/*.ts",
+                    "drizzle.config.ts",
+                    "**/migrations/**/*.sql",
+                    "**/lib/db.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']drizzle-orm[\"']",
+                    "from [\"']drizzle-orm/",
+                    "pgTable\\(",
+                    "mysqlTable\\(",
+                    "sqliteTable\\(",
+                    "relations\\(",
+                    "db\\.select\\(",
+                    "db\\.insert\\(",
+                    "db\\.update\\(",
+                    "db\\.delete\\(",
+                    "drizzle\\(",
+                    "eq\\(",
+                    "and\\(",
+                    "or\\(",
+                    "sql`"
+                ]
+            }
+        },
+        "stripe-payments": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Stripe payment integration for subscriptions, checkout, webhooks, and customer management",
+            "promptTriggers": {
+                "keywords": [
+                    "stripe",
+                    "payment",
+                    "checkout",
+                    "subscription",
+                    "webhook",
+                    "billing",
+                    "invoice",
+                    "customer",
+                    "payment intent",
+                    "setup intent",
+                    "payment method",
+                    "price",
+                    "product",
+                    "stripe elements",
+                    "stripe checkout",
+                    "stripe webhook",
+                    "stripe subscription",
+                    "stripe customer",
+                    "recurring payment",
+                    "one-time payment"
+                ],
+                "intentPatterns": [
+                    "(add|implement|setup|integrate).*?(stripe|payment|checkout|subscription)",
+                    "(payment|billing).*?(integration|system|flow)",
+                    "(how to|best practice).*?(stripe|payment|checkout|webhook)",
+                    "(handle|process).*?(payment|webhook|subscription)",
+                    "(customer|subscription).*?(management|portal|billing)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/stripe/**/*.ts",
+                    "**/payments/**/*.ts",
+                    "**/billing/**/*.ts",
+                    "**/webhooks/**/*.ts",
+                    "**/api/stripe/**/*.ts",
+                    "**/api/webhooks/stripe/**/*.ts",
+                    "**/lib/stripe.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']stripe[\"']",
+                    "from [\"']@stripe/",
+                    "new Stripe\\(",
+                    "stripe\\.checkout",
+                    "stripe\\.customers",
+                    "stripe\\.subscriptions",
+                    "stripe\\.webhooks",
+                    "stripe\\.paymentIntents",
+                    "loadStripe",
+                    "Elements",
+                    "CardElement",
+                    "PaymentElement"
+                ]
+            }
+        },
+        "email-patterns": {
+            "type": "domain",
+            "enforcement": "suggest",
+            "priority": "high",
+            "description": "Transactional email patterns with Resend and React Email for building and sending emails",
+            "promptTriggers": {
+                "keywords": [
+                    "resend",
+                    "react-email",
+                    "react email",
+                    "email",
+                    "transactional email",
+                    "email template",
+                    "send email",
+                    "email component",
+                    "Html",
+                    "Body",
+                    "Container",
+                    "Button",
+                    "Text",
+                    "Preview",
+                    "welcome email",
+                    "password reset email",
+                    "verification email",
+                    "notification email"
+                ],
+                "intentPatterns": [
+                    "(send|create|build|design).*?(email|notification|template)",
+                    "(email).*?(template|component|layout)",
+                    "(how to|best practice).*?(email|resend|react-email)",
+                    "(transactional|notification|welcome|reset).*?email",
+                    "(resend|react-email).*?(setup|integration|send)"
+                ]
+            },
+            "fileTriggers": {
+                "pathPatterns": [
+                    "**/emails/**/*.tsx",
+                    "**/emails/**/*.ts",
+                    "**/email-templates/**/*.tsx",
+                    "**/lib/email.ts",
+                    "**/lib/resend.ts",
+                    "**/api/email/**/*.ts"
+                ],
+                "contentPatterns": [
+                    "from [\"']resend[\"']",
+                    "from [\"']@react-email/",
+                    "new Resend\\(",
+                    "resend\\.emails\\.send",
+                    "Html",
+                    "Body",
+                    "Container",
+                    "Preview",
+                    "Tailwind",
+                    "@react-email/components"
+                ]
+            }
+        }
+    },
+    "notes": {
+        "enforcement_types": {
+            "suggest": "Skill suggestion appears but doesn't block execution",
+            "block": "Requires skill to be used before proceeding (guardrail)",
+            "warn": "Shows warning but allows proceeding"
+        },
+        "priority_levels": {
+            "critical": "Highest - Always trigger when matched",
+            "high": "Important - Trigger for most matches",
+            "medium": "Moderate - Trigger for clear matches",
+            "low": "Optional - Trigger only for explicit matches"
+        },
+        "customization": {
+            "pathPatterns": "Adjust to match your project structure (blog-api, auth-service, etc.)",
+            "keywords": "Add domain-specific terms relevant to your project",
+            "intentPatterns": "Use regex for flexible user intent matching"
+        }
+    }
+}
