@@ -8,12 +8,16 @@
 
 **Name:** GreenLeaf Dispensary
 **Type:** Premium Cannabis E-commerce Platform
-**Status:** Sprint 3 Complete, PR Ready for Review
+**Status:** Sprint 7 Complete, PR Ready for Review
 
 ### Current Sprint Status
 - **Sprint 1 (UI)**: ✅ Complete + Merged
-- **Sprint 2 (Auth)**: ✅ Complete, PR open (sprint-2 branch)
-- **Sprint 3 (Admin)**: ✅ Complete, PR open (sprint-3 branch)
+- **Sprint 2 (Auth)**: ✅ Complete + Merged
+- **Sprint 3 (Admin Part 1)**: ✅ Complete + Merged
+- **Sprint 4 (Orders + Email)**: ✅ Complete + Merged
+- **Sprint 5 (Stripe Checkout)**: ✅ Complete + Merged
+- **Sprint 6 (Testing)**: ✅ Complete (PR merged)
+- **Sprint 7 (Hardening)**: ✅ Complete, PR open (sprint-7 branch)
 
 ### Brand Direction
 - **Target:** NYC professionals, 25-45, $100k+ income
@@ -26,110 +30,93 @@
 ## Session Summary (2026-01-17)
 
 ### Completed This Session
-1. **Fixed Sprint 2 CodeRabbit issues** - stagger delay, THC 0% display, cart race conditions
-2. **Built Sprint 3 Admin Dashboard** - Full admin UI with strain CRUD, inventory management
-3. **Fixed Sprint 3 CodeRabbit issues** - framer-motion upgrade, cart security, inventory guards
 
-### Key Security Fixes Applied
-- **Cross-user cart exposure**: Session carts now only used if anonymous (`!cart.userId`)
-- **Inventory guard**: Cart add validates `existingGrams + newGrams <= inventory.quantity`
-- **OrderItem cascade**: Changed to `onDelete: SetNull` to preserve order history
+1. **Sprint 5 - Stripe Checkout & Webhooks** (continued from previous session)
+   - Fixed CodeRabbit issues: negative inventory protection, Stripe integer quantity
+   - Merged to main
 
-### Important Decisions Made
-1. **framer-motion v12**: Upgraded for React 19 compatibility (v11 incompatible)
-2. **Cart linking strategy**: Link anonymous carts to users, not merge (simpler)
-3. **OrderItem.strainId nullable**: Allows strain deletion without breaking orders
-4. **Admin role check**: Uses Clerk `publicMetadata.role === "admin"` at layout level
+2. **Sprint 6 - Testing Infrastructure**
+   - Vitest setup with jsdom environment
+   - Test utilities and mocks for Next.js, Clerk, Prisma, Resend, @react-email
+   - Unit tests for utilities (cn, formatPrice, formatGrams, slugify) - 14 tests
+   - Unit tests for cart tRPC procedures - 7 tests
+   - Playwright E2E configuration
+   - Basic E2E tests for homepage, catalog, cart
+   - GitHub Actions CI workflow (lint, typecheck, unit tests, E2E)
+   - **21 total unit tests passing**
 
----
+3. **Sprint 7 - Production Hardening**
+   - Sentry error tracking (@sentry/nextjs v10)
+   - Rate limiting with Upstash Redis
+   - Pino structured JSON logging
+   - Security headers (HSTS, X-Frame-Options, etc.)
+   - Global error boundary component
+   - Performance optimizations (compression, caching)
 
-## Key Files Reference
+### Key Technical Decisions
 
-### Configuration
-| File | Purpose |
-|------|---------|
-| `package.json` | Root monorepo config, scripts |
-| `turbo.json` | Turborepo task definitions |
-| `pnpm-workspace.yaml` | Workspace package definitions |
-| `docker-compose.yml` | Local PostgreSQL + pgvector |
-| `.env.local` | Environment variables (Clerk keys added) |
+1. **Vitest mocks via aliases**: Used `resolve.alias` in vitest.config.ts to mock @clerk/nextjs, @greenleaf/db, next/headers, resend, @react-email/components
+2. **pnpm issue with MINGW64**: Commands produce no output; use `node -e "execSync(...)"` wrapper to see output
+3. **Sprint-7 based on sprint-6**: Due to sprint-6 merge timing, sprint-7 branched from sprint-6
 
-### Apps
-| Path | Purpose |
-|------|---------|
-| `apps/web/` | Next.js 15 storefront |
-| `apps/web/app/(store)/` | Public storefront routes |
-| `apps/web/app/(auth)/` | Auth pages (sign-in, sign-up) |
-| `apps/web/app/(admin)/` | **NEW** Admin dashboard routes |
-| `apps/web/server/` | tRPC routers |
-| `apps/web/components/` | React components |
+### Important Files Created This Session
 
-### New Admin Files (Sprint 3)
-| Path | Purpose |
-|------|---------|
-| `app/(admin)/layout.tsx` | Admin shell with role check |
-| `app/(admin)/admin/page.tsx` | Dashboard home with stats |
-| `app/(admin)/admin/strains/page.tsx` | Strain list with table |
-| `app/(admin)/admin/strains/new/page.tsx` | Create strain form |
-| `app/(admin)/admin/strains/[id]/page.tsx` | Edit strain form |
-| `app/(admin)/admin/inventory/page.tsx` | Inventory inline editing |
-| `components/admin-sidebar.tsx` | Admin navigation |
-| `components/admin/strain-form.tsx` | Reusable strain form |
-| `server/routers/admin.ts` | Admin API procedures |
+**Sprint 6:**
+- `apps/web/vitest.config.ts` - Vitest configuration with aliases
+- `apps/web/playwright.config.ts` - Playwright E2E config
+- `apps/web/test/setup.ts` - Test setup with mocks
+- `apps/web/test/mocks/` - Mock files for Clerk, DB, Resend, etc.
+- `apps/web/test/helpers/` - Test utilities (render, trpc caller)
+- `apps/web/lib/utils.test.ts` - Utility function tests
+- `apps/web/server/routers/cart.test.ts` - Cart procedure tests
+- `apps/web/e2e/home.spec.ts` - E2E tests
+- `.github/workflows/ci.yml` - CI pipeline
 
-### Packages
-| Path | Purpose |
-|------|---------|
-| `packages/db/` | Prisma schema + client |
-| `packages/ai/` | LangChain budtender |
+**Sprint 7:**
+- `apps/web/sentry.client.config.ts` - Sentry client config
+- `apps/web/sentry.server.config.ts` - Sentry server config
+- `apps/web/sentry.edge.config.ts` - Sentry edge config
+- `apps/web/instrumentation.ts` - Next.js 15 instrumentation
+- `apps/web/app/global-error.tsx` - Global error boundary
+- `apps/web/lib/rate-limit.ts` - Upstash rate limiter
+- `apps/web/lib/logger.ts` - Pino structured logger
+- `apps/web/next.config.ts` - Updated with security headers + Sentry
 
 ---
 
-## Database Schema Changes
+## Environment Variables (Current)
 
-### Sprint 2 Changes
-```prisma
-model Cart {
-  userId    String?    @unique  // One cart per user
-}
-```
+```env
+# Database
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/greenleaf
 
-### Sprint 3 Changes
-```prisma
-model OrderItem {
-  strainId   String?   // Nullable for strain deletion
-  strain     Strain?   @relation(onDelete: SetNull)
-}
-```
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_YOUR_KEY_HERE
+CLERK_SECRET_KEY=sk_test_YOUR_KEY_HERE
 
----
+# Stripe
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_KEY_HERE
+STRIPE_SECRET_KEY=sk_test_YOUR_KEY_HERE
+STRIPE_WEBHOOK_SECRET=whsec_YOUR_SECRET_HERE
 
-## tRPC Procedures Added
+# Resend
+RESEND_API_KEY=re_YOUR_KEY_HERE
 
-### Admin Router (`server/routers/admin.ts`)
-| Procedure | Type | Description |
-|-----------|------|-------------|
-| `admin.stats` | Query | Dashboard stats (strains, inventory, orders, revenue) |
-| `admin.strains.list` | Query | List strains with search/filter |
-| `admin.strains.get` | Query | Get single strain by ID |
-| `admin.strains.create` | Mutation | Create new strain |
-| `admin.strains.update` | Mutation | Update existing strain |
-| `admin.strains.delete` | Mutation | Delete strain |
-| `admin.inventory.list` | Query | List inventory with low stock filter |
-| `admin.inventory.update` | Mutation | Update quantity/price |
-| `admin.inventory.bulkUpdate` | Mutation | Batch update inventory |
+# OpenAI
+OPENAI_API_KEY=sk-proj-YOUR_KEY_HERE
 
-### Auth Middleware
-```typescript
-// server/trpc.ts
-export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  const client = await clerkClient();
-  const user = await client.users.getUser(ctx.userId);
-  if (user.publicMetadata?.role !== "admin") {
-    throw new TRPCError({ code: "FORBIDDEN" });
-  }
-  return next({ ctx });
-});
+# Sentry (Sprint 7 - NEW)
+NEXT_PUBLIC_SENTRY_DSN=
+SENTRY_DSN=
+SENTRY_ORG=
+SENTRY_PROJECT=
+
+# Upstash Redis (Sprint 7 - NEW, optional)
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+
+# Logging
+LOG_LEVEL=info
 ```
 
 ---
@@ -138,90 +125,55 @@ export const adminProcedure = protectedProcedure.use(async ({ ctx, next }) => {
 
 | Branch | Status | PR |
 |--------|--------|-----|
-| `main` | Base branch | - |
-| `sprint-1` | Merged | ✅ |
-| `sprint-2` | Ready for merge | Needs review |
-| `sprint-3` | Based on sprint-2 | Needs review |
+| `main` | Updated with Sprint 5 | - |
+| `sprint-6` | Merged (user confirmed) | ✅ |
+| `sprint-7` | Ready for merge | Open - needs review |
 
-### To Merge
-1. Merge sprint-1 → main (if not done)
-2. Merge sprint-2 → main
-3. Rebase sprint-3 on main
-4. Merge sprint-3 → main
+### Current Branch: `sprint-7`
+- Based on: `sprint-6`
+- Commits: 1 (`feat(hardening): Sprint 7 - Production hardening`)
 
 ---
 
-## Dependencies & Versions
+## Test Commands
 
-### Core Stack (Current)
-```json
-{
-  "next": "15.1.4",
-  "react": "19.0.0",
-  "@trpc/server": "11.0.0-rc.682",
-  "prisma": "6.2.1",
-  "framer-motion": "^12.x",    // Upgraded for React 19
-  "@clerk/nextjs": "^5.x",
-  "@tanstack/react-table": "^8.x"
-}
+```bash
+# Unit tests
+pnpm --filter @greenleaf/web test:run
+
+# Unit tests with coverage
+pnpm --filter @greenleaf/web test:coverage
+
+# E2E tests (requires dev server or starts one)
+pnpm --filter @greenleaf/web test:e2e
+
+# E2E tests with UI
+pnpm --filter @greenleaf/web test:e2e:ui
 ```
 
 ---
 
-## Environment Variables
+## Next Steps (After Sprint 7 Merge)
 
-### Required
-```env
-# Database
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/greenleaf
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
-
-# OpenAI
-OPENAI_API_KEY=sk-proj-...
-
-# Clerk (Sprint 2)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-CLERK_SECRET_KEY=sk_test_...
-```
-
----
-
-## To Test Admin Dashboard
-
-1. **Set admin role in Clerk Dashboard:**
-   - Go to Users → Select user → Edit Public Metadata
-   - Add: `{"role": "admin"}`
-
-2. **Access admin:**
-   - Navigate to `/admin`
-   - Should see dashboard with stats
-
-3. **Test CRUD:**
-   - Create new strain at `/admin/strains/new`
-   - Edit existing strain
-   - Update inventory inline
-
----
-
-## Next Steps (Sprint 4)
-
-1. **Order Management** - Admin orders list/detail/status updates
-2. **Dashboard Analytics** - Revenue charts, top sellers
-3. **Email System** - Resend + React Email for order confirmations
+1. **Set up Sentry project** and add DSN to environment
+2. **Set up Upstash Redis** for rate limiting (optional but recommended)
+3. **Phase 7: AWS Deployment** (if continuing)
+   - ECS/Fargate setup
+   - RDS PostgreSQL
+   - CloudFront CDN
+   - Route 53 DNS
 
 ---
 
 ## Known Issues & Gotchas
 
 1. **pgvector extension** - Must run `CREATE EXTENSION vector;` manually
-2. **Stripe webhooks local** - Need `stripe listen --forward-to localhost:3000/api/stripe/webhook`
+2. **Stripe webhooks local** - Need `stripe listen --forward-to localhost:3000/api/webhooks/stripe`
 3. **Admin access** - Requires Clerk publicMetadata.role = "admin"
-4. **Cart session** - Cookie name is `cart_session`, httpOnly
-5. **Sprint branches** - sprint-3 depends on sprint-2, merge in order
+4. **Cart session** - Cookie name is `cart_session`
+5. **pnpm on MINGW64** - Use node wrapper to see command output
+6. **Sentry** - DSN required to enable, disabled without it
+7. **Rate limiting** - Disabled without Upstash credentials
 
 ---
 
@@ -231,12 +183,20 @@ CLERK_SECRET_KEY=sk_test_...
 # Development
 pnpm dev                    # Start dev server
 pnpm build                  # Build all packages
+pnpm tsc --noEmit          # TypeScript check
 
 # Database
 pnpm db:push                # Push schema changes
 pnpm db:studio              # Open Prisma Studio
 
+# Testing
+pnpm test:run               # Run unit tests
+pnpm test:e2e               # Run E2E tests
+
 # Git
-git checkout sprint-3       # Current active branch
+git checkout sprint-7       # Current active branch
 git push                    # Push to update PR
+
+# Stripe (local webhooks)
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
 ```

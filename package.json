@@ -13,7 +13,10 @@
     "db:push": "turbo db:push",
     "db:studio": "pnpm --filter @greenleaf/db studio",
     "scrape": "pnpm --filter @greenleaf/scraper scrape",
-    "seed": "pnpm --filter @greenleaf/scraper seed"
+    "seed": "pnpm --filter @greenleaf/scraper seed",
+    "test": "turbo test",
+    "test:run": "turbo test:run",
+    "test:coverage": "pnpm --filter @greenleaf/web test:coverage"
   },
   "devDependencies": {
     "@greenleaf/eslint-config": "workspace:*",
