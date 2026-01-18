@@ -18,6 +18,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 
 # Copy all package.json files for workspace packages
 COPY apps/web/package.json ./apps/web/
+COPY apps/scraper/package.json ./apps/scraper/
 COPY packages/db/package.json ./packages/db/
 COPY packages/ai/package.json ./packages/ai/
 COPY packages/ui/package.json ./packages/ui/
@@ -34,15 +35,15 @@ RUN pnpm install --frozen-lockfile
 FROM base AS builder
 WORKDIR /app
 
-# Copy dependencies from deps stage
+# Copy source code first
+COPY . .
+
+# Copy all node_modules from deps stage
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
 COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
 COPY --from=deps /app/packages/ai/node_modules ./packages/ai/node_modules
 COPY --from=deps /app/packages/ui/node_modules ./packages/ui/node_modules
-
-# Copy source code
-COPY . .
 
 # Generate Prisma client
 RUN pnpm --filter @greenleaf/db db:generate
