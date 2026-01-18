@@ -11,4 +11,14 @@ Sentry.init({
 
   // Only enable in production or when DSN is set
   enabled: !!process.env.SENTRY_DSN,
+
+  // Before sending, filter out sensitive data
+  beforeSend(event) {
+    // Remove sensitive headers
+    if (event.request?.headers) {
+      delete event.request.headers["authorization"];
+      delete event.request.headers["cookie"];
+    }
+    return event;
+  },
 });

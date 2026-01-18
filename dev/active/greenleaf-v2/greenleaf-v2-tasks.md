@@ -185,24 +185,37 @@
 
 ---
 
-## Phase 7: AWS Deployment (P3) - SPRINT 8+ (Future)
+## Phase 7: AWS Deployment (P3) - SPRINT 8 ✅ COMPLETE
 
-### 7.1 Infrastructure
-- [ ] Set up AWS account/IAM
-- [ ] Create VPC with public/private subnets
-- [ ] Set up RDS PostgreSQL
-- [ ] Configure ECS/Fargate cluster
+### 7.1 Docker Setup ✅
+- [x] Improve Dockerfile with multi-stage build
+- [x] Add health check and wget to Dockerfile
+- [x] Create .dockerignore file
+- [x] Create docker-compose.prod.yml
 
-### 7.2 Application Deployment
-- [ ] Create Dockerfile
-- [ ] Set up ECR repository
-- [ ] Create ECS task definition
-- [ ] Configure ALB and target groups
+### 7.2 Terraform Infrastructure ✅
+- [x] Create VPC with public/private subnets
+- [x] Set up NAT Gateway
+- [x] Create VPC endpoints (ECR, S3, CloudWatch)
+- [x] Configure ECS cluster with Fargate
+- [x] Create ECR repository with lifecycle policy
+- [x] Set up RDS PostgreSQL 16 (encrypted, backups)
+- [x] Configure Application Load Balancer
+- [x] Set up Secrets Manager for env vars (including DATABASE_URL)
+- [x] Add auto-scaling (CPU-based)
+- [x] Create terraform.tfvars.example
 
-### 7.3 CDN & DNS
+### 7.3 CI/CD Pipeline ✅
+- [x] Create GitHub Actions deploy workflow
+- [x] Configure Docker build with layer caching
+- [x] Push to Amazon ECR
+- [x] ECS task definition update
+- [x] Blue/green deployment with rollback
+
+### 7.4 CDN & DNS (Future/Optional)
 - [ ] Set up CloudFront distribution
 - [ ] Configure Route 53 hosted zone
-- [ ] Set up SSL certificates
+- [ ] Set up SSL certificates via ACM
 
 ---
 
@@ -217,8 +230,8 @@
 | **Phase 4: Stripe** | 15 | 15 | 0 ✅ |
 | **Phase 5: Testing** | 18 | 18 | 0 ✅ |
 | **Phase 6: Hardening** | 20 | 20 | 0 ✅ |
-| Phase 7: AWS | 21 | 0 | 21 |
-| **Total** | **165** | **144** | **21** |
+| **Phase 7: AWS** | 21 | 18 | 3 ✅ |
+| **Total** | **165** | **162** | **3** |
 
 ---
 
@@ -232,30 +245,34 @@
 | **Sprint 4** | Orders + Email System | ✅ Complete + Merged |
 | **Sprint 5** | Stripe Checkout + Webhooks | ✅ Complete + Merged |
 | **Sprint 6** | Testing Foundation | ✅ Complete + Merged |
-| **Sprint 7** | Hardening | ✅ Complete, PR Open |
-| Sprint 8 | AWS Deployment | Planned |
+| **Sprint 7** | Hardening | ✅ Complete + Merged |
+| **Sprint 8** | AWS Deployment | ✅ Complete + Merged |
 
 ---
 
 ## Handoff Notes for Next Session
 
 ### Current State
-- **Branch:** `sprint-7` (pushed to origin)
-- **PR Status:** Open, waiting for review/merge
+- **Branch:** `main` (all sprints merged)
+- **PR Status:** All merged
 - **All code committed:** Yes
 
-### To Continue
-1. Wait for sprint-7 PR to be approved/merged
-2. After merge, checkout main and pull: `git checkout main && git pull`
-3. Set up Sentry DSN and Upstash Redis credentials
-4. Start Sprint 8 (AWS Deployment) or other work
+### To Deploy
+1. Configure Terraform variables: `cd infra/terraform && cp terraform.tfvars.example terraform.tfvars`
+2. Deploy infrastructure: `terraform init && terraform apply`
+3. Set up GitHub Actions secrets for deployment
+
+### GitHub Actions Secrets Needed
+- `AWS_ROLE_ARN` - IAM role ARN for OIDC authentication
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+- `NEXT_PUBLIC_APP_URL`
+- `NEXT_PUBLIC_SENTRY_DSN` (optional)
 
 ### Environment Ready
-- Stripe keys configured in `.env.local`
-- Resend API key configured
-- Clerk keys configured
+- All API keys configured in `.env.local`
 - Database schema up-to-date
-- New env vars needed for Sentry/Upstash (optional)
+- Docker and Terraform infrastructure ready
 
 ### Test Commands
 ```bash
@@ -267,6 +284,9 @@ pnpm --filter @greenleaf/web test:run
 
 # TypeScript check
 pnpm tsc --noEmit
+
+# Build Docker image
+docker build -f apps/web/Dockerfile -t greenleaf .
 
 # Test Stripe webhooks locally
 stripe listen --forward-to localhost:3000/api/webhooks/stripe
