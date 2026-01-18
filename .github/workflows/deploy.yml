@@ -55,7 +55,7 @@ jobs:
       id-token: write
       contents: read
     outputs:
-      image: ${{ steps.build-image.outputs.image }}
+      image: ${{ steps.output-image.outputs.image }}
     steps:
       - uses: actions/checkout@v4
 
@@ -88,8 +88,10 @@ jobs:
             NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY }}
             NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=${{ secrets.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY }}
             NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ secrets.NEXT_PUBLIC_SENTRY_DSN }}
 
       - name: Output image URI
+        id: output-image
         run: |
           echo "image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}" >> $GITHUB_OUTPUT
 
@@ -101,7 +103,7 @@ jobs:
       contents: read
     environment:
       name: ${{ inputs.environment || 'prod' }}
-      url: ${{ secrets.APP_URL }}
+      url: ${{ vars.APP_URL }}
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4

@@ -1,6 +1,7 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
+import type { ReactNode } from "react";
 
 // Cleanup after each test
 afterEach(() => {
@@ -38,7 +39,7 @@ vi.mock("@clerk/nextjs", () => ({
   SignIn: () => null,
   SignUp: () => null,
   UserButton: () => null,
-  ClerkProvider: ({ children }: { children: React.ReactNode }) => children,
+  ClerkProvider: ({ children }: { children: ReactNode }) => children,
   useAuth: () => ({
     isLoaded: true,
     isSignedIn: false,
