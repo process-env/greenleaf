@@ -36,12 +36,13 @@ resource "aws_security_group" "rds" {
 
 # RDS Parameter Group for pgvector
 resource "aws_db_parameter_group" "main" {
-  name   = "${local.name_prefix}-pg-params"
-  family = "postgres16"
+  name   = "${local.name_prefix}-pg-params-v2"
+  family = "postgres15"
 
   parameter {
-    name  = "shared_preload_libraries"
-    value = "pg_stat_statements"
+    name         = "shared_preload_libraries"
+    value        = "pg_stat_statements"
+    apply_method = "pending-reboot"
   }
 
   parameter {
@@ -60,7 +61,7 @@ resource "aws_db_instance" "main" {
 
   # Engine
   engine         = "postgres"
-  engine_version = "16.4"
+  engine_version = "15.13"
 
   # Instance
   instance_class        = var.db_instance_class
@@ -83,14 +84,13 @@ resource "aws_db_instance" "main" {
   # Parameter Group
   parameter_group_name = aws_db_parameter_group.main.name
 
-  # Backup
-  backup_retention_period = 7
+  # Backup (1 day for free tier)
+  backup_retention_period = 1
   backup_window           = "03:00-04:00"
   maintenance_window      = "Mon:04:00-Mon:05:00"
 
-  # Monitoring
-  performance_insights_enabled          = true
-  performance_insights_retention_period = 7
+  # Monitoring (disabled for free tier)
+  performance_insights_enabled = false
   enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]
 
   # Deletion protection
